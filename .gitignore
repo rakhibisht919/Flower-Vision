@@ -1,0 +1,79 @@
+# =============================================================
+# FlowerVision — .gitignore
+# =============================================================
+
+# ── Virtual environments ──────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Python cache ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Trained model files (too large for GitHub) ────────────────
+models/*.h5
+models/*.keras
+models/*.pb
+models/flower_recognition_model_tf/
+models/variables/
+
+# Keep result logs and charts
+!models/training_history.json
+!models/training_history.png
+!models/comparison_results.json
+
+# ── Dataset (downloaded separately) ──────────────────────────
+data/oxford_flowers102/
+data/*.tfrecord
+data/downloads/
+
+# Keep class names list
+!data/class_names.txt
+
+# ── IDE & editor configs ──────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── OS artifacts ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Jupyter Notebooks ─────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Build & dist ──────────────────────────────────────────────
+build/
+dist/
+*.egg-info/
+*.egg
+
+# ── Test & coverage ───────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Secrets / environment ─────────────────────────────────────
+.env
+.env.local
+*.secret
+
+# ── Temporary files ───────────────────────────────────────────
+*.tmp
+*.bak
+*.swp
+~$*

@@ -1,0 +1,1 @@
+oh also i forgot to tell you that do the same for html files as you do for the css files . maintain the comments but reduce them a bit and remove unnecessary symbols . is you removed comments from html files as well so just rewrite them efficiently as i told 

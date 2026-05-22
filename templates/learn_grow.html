@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Learn &amp; Grow - FlowerVision</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=13">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/learn.css') }}?v=3">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body
+  style="background: linear-gradient(145deg, #f0faf4 0%, #d8efe3 55%, #eef7f2 100%); min-height: 100vh; overflow-y: auto; overflow-x: hidden;">
+
+  <!-- Ambient background blobs -->
+  <div class="bg-blur-blob blob-3"></div>
+  <div class="bg-blur-blob blob-4"></div>
+
+  <!-- Header -->
+  <header
+    style="padding: 30px 40px 10px 40px; display: flex; justify-content: flex-start; max-width: 1200px; margin: 0 auto;">
+    <a href="/?skip=true" class="learn-grow-nav-btn animate-fade-up">
+      <i class="fa-solid fa-arrow-left"></i> Home
+    </a>
+  </header>
+
+  <div class="landing-learn-section" style="padding-top: 20px; max-width: 1200px; margin: 0 auto; animation: none;">
+    <h1 class="hero-heading animate-fade-up delay-1"
+      style="text-align: center; margin-bottom: 20px; color: var(--green-dark);">
+      Learn <span class="highlight-green" style="display: inline-block;">&amp;</span> Grow
+    </h1>
+
+    <p class="hero-subtitle animate-fade-up delay-2">
+      Search flowers, explore care tips, and track your growth journey
+    </p>
+
+    <!-- Search box -->
+    <div class="learn-search-wrap animate-fade-up delay-3">
+      <div class="learn-search-box">
+        <i class="fa-solid fa-magnifying-glass learn-search-icon"></i>
+        <input type="text" id="learn-search-input" class="learn-search-input"
+          placeholder="Search a flower to learn about it... (e.g. Rose, Lotus)" autocomplete="off" />
+        <button class="learn-search-btn" id="learn-search-btn" type="button">
+          Search
+        </button>
+      </div>
+      <div class="learn-not-found" id="learn-not-found" style="display:none;">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="learn-not-found-msg">Flower not found in database.</span>
+      </div>
+    </div>
+
+    <!-- Flower result card -->
+    <div id="learn-result-card" style="display:none;">
+
+      <div class="learn-card-header-hero">
+        <div class="learn-flower-img-wrap">
+          <img id="learn-flower-img" src="" alt="Flower Image" />
+        </div>
+        <h2 class="learn-name-display" id="learn-name"></h2>
+        <p class="learn-scientific-display" id="learn-scientific"></p>
+      </div>
+
+      <div class="learn-details-grid">
+        <div class="detail-info-card full-span">
+          <div class="card-icon-header"><i class="fa-solid fa-align-left"></i> Description</div>
+          <div class="detail-text-val" id="learn-desc"></div>
+        </div>
+        <div class="detail-info-card">
+          <div class="card-icon-header"><i class="fa-solid fa-mortar-pestle"></i> Uses</div>
+          <div class="detail-text-val" id="learn-uses"></div>
+        </div>
+        <div class="detail-info-card">
+          <div class="card-icon-header"><i class="fa-solid fa-hand-holding-droplet"></i> Care Tips</div>
+          <div class="detail-text-val" id="learn-care"></div>
+        </div>
+        <div class="detail-info-card">
+          <div class="card-icon-header"><i class="fa-solid fa-wand-magic-sparkles"></i> Symbolism</div>
+          <div class="detail-text-val" id="learn-symbolism"></div>
+        </div>
+        <div class="detail-info-card">
+          <div class="card-icon-header"><i class="fa-solid fa-leaf"></i> Common Species</div>
+          <div class="detail-text-val" id="learn-species"></div>
+        </div>
+        <div class="detail-info-card full-span">
+          <div class="card-icon-header"><i class="fa-regular fa-lightbulb"></i> Fun Facts</div>
+          <div class="detail-text-val" id="learn-facts"></div>
+        </div>
+        <div class="detail-info-card">
+          <div class="card-icon-header"><i class="fa-solid fa-seedling"></i> Grow from Seed</div>
+          <div class="detail-text-val" id="learn-seed"></div>
+        </div>
+        <div class="detail-info-card">
+          <div class="card-icon-header"><i class="fa-solid fa-scissors"></i> Grow from Cutting</div>
+          <div class="detail-text-val" id="learn-stem"></div>
+        </div>
+      </div>
+
+      <div class="learn-grow-cta-banner">
+        <div class="learn-grow-days-estimate">
+          <i class="fa-regular fa-clock"></i>
+          <span>Estimated growth duration: <strong id="learn-days" style="margin-left: 6px; font-size:1.4rem;"></strong>
+            days</span>
+        </div>
+        <span class="learn-growth-badge" id="learn-growth-badge"></span>
+        <button class="learn-start-btn-massive" id="learn-start-btn" type="button">
+          <i class="fa-solid fa-seedling"></i> Start Growing Journey
+        </button>
+      </div>
+    </div>
+
+    <!-- Growth tracker -->
+    <div id="tracker-card" class="tracker-card-premium" style="display:none;">
+
+      <div class="tracker-card-header">
+        <div class="tracker-header-icon">
+          <i class="fa-solid fa-leaf"></i>
+        </div>
+        <div class="tracker-header-text">
+          <h3 id="tracker-name">My Plant</h3>
+          <p>Growth Tracker</p>
+        </div>
+        <button class="tracker-reset-btn" id="tracker-reset-btn" title="Remove tracker">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+
+      <div class="tracker-date-row">
+        <span><i class="fa-regular fa-calendar-check" style="color:var(--green-mid); margin-right:6px;"></i> Started:
+          <strong id="tracker-start"></strong></span>
+        <span class="tracker-day-badge" id="tracker-day-badge">Day 0</span>
+      </div>
+
+      <div class="tracker-progress-wrap">
+        <div class="tracker-progress-track">
+          <div class="tracker-progress-fill" id="tracker-fill" style="width:0%"></div>
+        </div>
+        <span class="tracker-pct" id="tracker-pct">0%</span>
+      </div>
+
+      <div class="tracker-stats-row">
+        <div class="tracker-stat">
+          <span class="tracker-stat-label">Total Days</span>
+          <span class="tracker-stat-val" id="tracker-total">—</span>
+        </div>
+        <div class="tracker-stat">
+          <span class="tracker-stat-label">Remaining</span>
+          <span class="tracker-stat-val" id="tracker-remaining">—</span>
+        </div>
+        <div class="tracker-stat">
+          <span class="tracker-stat-label">Status</span>
+          <span class="tracker-stat-val" id="tracker-status">—</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Plant care help -->
+    <section class="plant-care-section" id="plant-care-section">
+
+      <div class="plant-care-header">
+        <div class="plant-care-icon-wrap">
+          <i class="fa-solid fa-stethoscope"></i>
+        </div>
+        <div class="plant-care-header-text">
+          <h2 class="plant-care-title">Plant Care Help</h2>
+          <p class="plant-care-subtitle">Pick a problem and get expert advice — works for any plant</p>
+        </div>
+      </div>
+
+      <div class="care-form-wrap">
+
+        <div class="care-field-group">
+          <label class="care-label" for="care-issue-select">
+            <i class="fa-solid fa-circle-exclamation"></i> What's the issue?
+          </label>
+          <div class="care-select-wrapper">
+            <select id="care-issue-select" class="care-select">
+              <option value="">— Choose a plant problem —</option>
+              <option value="not-growing">🌱 Plant is not growing</option>
+              <option value="yellow-leaves">🍂 Leaves are turning yellow</option>
+              <option value="not-blooming">🌸 Flower is not blooming</option>
+              <option value="drying-leaves">🍃 Leaves are drying / browning</option>
+              <option value="overwatering">💧 Overwatering issue</option>
+              <option value="underwatering">🏜️ Underwatering issue</option>
+              <option value="pest-attack">🐛 Pest attack</option>
+              <option value="weak-stem">🎋 Weak or drooping stem</option>
+              <option value="no-buds">🌼 No buds appearing</option>
+            </select>
+            <i class="fa-solid fa-chevron-down care-select-arrow"></i>
+          </div>
+        </div>
+
+        <button class="care-advice-btn" id="care-advice-btn" type="button">
+          <i class="fa-solid fa-lightbulb"></i> Get Advice
+        </button>
+
+      </div>
+
+      <!-- Advice result -->
+      <div id="care-advice-card" class="care-advice-card" style="display:none;"></div>
+
+    </section>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='js/learn.js') }}?v=3"></script>
+</body>
+
+</html>

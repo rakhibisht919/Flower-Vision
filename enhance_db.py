@@ -1,0 +1,944 @@
+#!/usr/bin/env python3
+"""One-time script: adds fun_facts, species, grow_methods, growth_days to flower_database.json."""
+import json
+
+ENHANCEMENTS = {
+    "pink primrose": {
+        "fun_facts": "Pink primroses are among the earliest spring flowers, often blooming while snow is still on the ground. They are native to the Himalayan alpine regions at elevations above 3,000 metres.",
+        "species": "Primula rosea, Primula denticulata (Drumstick primrose), Primula vialii",
+        "grow_methods": {
+            "seed": "Sow seeds in late winter on the surface of moist seed compost — do not cover, they need light to germinate. Keep at 15–18°C. Germination takes 2–4 weeks. Transplant seedlings when large enough to handle into individual pots.",
+            "stem": "Divide established clumps in autumn or spring. Carefully separate the crown into smaller sections, each with healthy roots attached. Replant immediately in moist, well-drained soil and water thoroughly."
+        },
+        "growth_days": 90
+    },
+    "hard-leaved pocket orchid": {
+        "fun_facts": "Pocket orchids are named for their slipper-shaped pouch which traps insects and forces them to pollinate the flower. They are among the most challenging orchids to cultivate and some species take 15 years to reach flowering size.",
+        "species": "Paphiopedilum insigne, Paphiopedilum callosum, Paphiopedilum rothschildianum",
+        "grow_methods": {
+            "seed": "Orchid seeds are dust-like and require symbiotic fungi to germinate in nature. For home growers, sterile flask culture with agar medium is required. Germination and growth to blooming size takes 3–7 years.",
+            "stem": "Propagate by dividing the plant when it has at least 3 healthy growths. Cut the rhizome with a sterilised blade, ensuring each section has roots and a growth point. Pot in bark mix and keep in high humidity for 4–6 weeks."
+        },
+        "growth_days": 1095
+    },
+    "canterbury bells": {
+        "fun_facts": "Canterbury bells are named after the bells used by pilgrims travelling to Canterbury Cathedral in England. They are true biennials, requiring two full growing seasons to produce flowers.",
+        "species": "Campanula medium, Campanula portenschlagiana, Campanula persicifolia",
+        "grow_methods": {
+            "seed": "Sow seeds outdoors in early summer in a seedbed. Thin to 15 cm apart. Move to final positions in autumn. Plants will flower the following summer. Seeds germinate in 14–21 days at 18–21°C.",
+            "stem": "Take basal cuttings in spring from young shoots growing from the base of the plant. Root in a mix of perlite and compost. Keep moist and in indirect light for 3–4 weeks until rooted. Pot up and nurture through winter."
+        },
+        "growth_days": 365
+    },
+    "sweet pea": {
+        "fun_facts": "Sweet peas were first cultivated in Sicily in the 17th century by a Sicilian monk who sent seeds to England. Their scent is among the most beloved of all garden flowers and has inspired countless perfumes.",
+        "species": "Lathyrus odoratus, Lathyrus latifolius, Lathyrus grandiflorus",
+        "grow_methods": {
+            "seed": "Soak seeds overnight in water before sowing. Sow 2 cm deep in autumn or early spring. Germination takes 10–14 days at 15–18°C. Pinch out tips when 10 cm tall to encourage bushy growth and provide support immediately.",
+            "stem": "Sweet peas are best grown from seed. Side-shoot cuttings can be taken in early spring, rooted in moist perlite kept at 15°C, though success rate is lower than seed propagation."
+        },
+        "growth_days": 75
+    },
+    "english marigold": {
+        "fun_facts": "English marigold (Calendula) petals are edible and were historically used to colour butter and cheese. They have been used medicinally for skin healing for over 400 years and remain popular in modern herbal skincare.",
+        "species": "Calendula officinalis, Calendula arvensis",
+        "grow_methods": {
+            "seed": "Sow directly outdoors after the last frost or start indoors 6–8 weeks early. Sow 1 cm deep. Germination takes 5–14 days at 18–21°C. Thin plants to 30 cm apart. Deadhead regularly for continuous flowering throughout summer.",
+            "stem": "Take stem tip cuttings in late summer. Remove lower leaves, dip in rooting hormone and insert into moist compost. Keep in a shaded spot. Roots develop in 3–4 weeks. Pot individually and overwinter under cover."
+        },
+        "growth_days": 55
+    },
+    "tiger lily": {
+        "fun_facts": "Tiger lilies are one of the few plants that produce bulbils — small black bead-like structures on the stem that can be planted to grow new plants. They have been eaten as a vegetable in Asia for centuries and were traded along the Silk Road.",
+        "species": "Lilium lancifolium, Lilium tigrinum, Lilium henryi",
+        "grow_methods": {
+            "seed": "Sow seeds in autumn in trays of compost kept cool over winter. Germination is slow, taking up to 18 months. Alternatively, collect the black bulbils that form on the stem in late summer and plant 5 cm deep in pots.",
+            "stem": "Remove scales from a healthy bulb in autumn. Dust with fungicide and place in a bag of moist perlite. Store at 21°C for 6–8 weeks until small bulblets form on the scales. Plant bulblets in pots and grow on for 2–3 years."
+        },
+        "growth_days": 90
+    },
+    "moon orchid": {
+        "fun_facts": "Moon orchids (Phalaenopsis) are the world's bestselling orchid. A single flower spike can last up to 4 months. They are epiphytes — in nature they grow anchored to tree branches in tropical rainforests, absorbing moisture from the air.",
+        "species": "Phalaenopsis amabilis, Phalaenopsis schilleriana, Phalaenopsis stuartiana",
+        "grow_methods": {
+            "seed": "Phalaenopsis seeds require sterile laboratory conditions to germinate on nutrient agar. Seeds are microscopic and need symbiotic fungi or agar to develop. This method is not practical for home growers.",
+            "stem": "Propagate via keikis — baby plants that sometimes form on the flower spike naturally. When the keiki has roots of at least 5 cm, carefully remove with a sharp blade and pot in bark medium. Keep humid for 6–8 weeks."
+        },
+        "growth_days": 730
+    },
+    "bird of paradise": {
+        "fun_facts": "Bird of paradise flowers are pollinated by sunbirds that land on the blue waxy spathe to drink nectar, inadvertently picking up pollen on their feet. Individual plants can live for over 100 years and improve dramatically with age.",
+        "species": "Strelitzia reginae, Strelitzia nicolai (giant white), Strelitzia juncea",
+        "grow_methods": {
+            "seed": "Soak seeds for 1–2 days to soften the hard coat. Sow 2–3 cm deep in well-drained compost at 25°C. Germination takes 1–2 months. Plants grown from seed take 5–7 years to flower for the first time — patience is essential.",
+            "stem": "Divide mature clumps in spring by carefully separating rhizome sections with a sharp spade. Each division should have 2–3 stems and a good root system. Replant at the same depth in full sun and water well."
+        },
+        "growth_days": 1825
+    },
+    "monkshood": {
+        "fun_facts": "Monkshood is one of the most toxic plants in the Northern Hemisphere — all parts are poisonous. Historically called 'wolf's bane', it was used to poison wolves in medieval times. Always wear gloves when handling it.",
+        "species": "Aconitum napellus, Aconitum carmichaelii, Aconitum lycoctonum",
+        "grow_methods": {
+            "seed": "Sow seeds in autumn as they need cold stratification to germinate. Surface sow on moist compost and refrigerate for 3–4 weeks, then move to warmth. Germination takes 14–30 days. Always wear gloves as all parts are toxic.",
+            "stem": "Divide clumps in autumn or early spring wearing gloves. Dig up the clump, separate the fleshy roots with a sharp knife and replant sections 30–45 cm apart. Water well after planting. Keep away from children and pets."
+        },
+        "growth_days": 120
+    },
+    "globe thistle": {
+        "fun_facts": "Globe thistle flowers turn a stunning metallic blue as they mature. They are excellent attractors of bees and butterflies and their round heads dry perfectly — keeping their colour — for use in dried flower arrangements.",
+        "species": "Echinops ritro, Echinops sphaerocephalus, Echinops bannaticus",
+        "grow_methods": {
+            "seed": "Sow seeds outdoors in spring or autumn with a light covering of soil. Germination takes 14–21 days. Thin plants to 60 cm apart. Plants will bloom in their second year from seed. Self-seeds freely once established.",
+            "stem": "Take root cuttings in autumn or winter. Cut thick roots into 5 cm sections and lay horizontally in trays of moist compost. Cover lightly. New shoots emerge in spring. Division in early spring also works well."
+        },
+        "growth_days": 120
+    },
+    "snapdragon": {
+        "fun_facts": "Snapdragons get their name from the flower that snaps open when squeezed — a favourite trick with children. When seed pods dry out, they resemble tiny brown skulls, earning them the spookier nickname 'dragon skulls'.",
+        "species": "Antirrhinum majus, Antirrhinum molle, Antirrhinum siculum",
+        "grow_methods": {
+            "seed": "Start seeds indoors 8–10 weeks before the last frost. Surface sow on moist compost — they need light to germinate. Germination takes 10–14 days at 18–21°C. Pinch seedlings once when 10 cm tall to encourage branching.",
+            "stem": "Take 8–10 cm tip cuttings in late summer. Remove lower leaves and insert in moist perlite. Keep at 18°C with high humidity. Roots develop in 3–4 weeks. Pot up and overwinter in a frost-free place for spring planting."
+        },
+        "growth_days": 70
+    },
+    "colt's foot": {
+        "fun_facts": "Colt's foot is one of the first wildflowers to bloom each spring, often appearing months before its leaves emerge. Its flowers were historically used to make cough syrup. The large hoof-shaped leaves inspired the common name.",
+        "species": "Tussilago farfara",
+        "grow_methods": {
+            "seed": "Seeds are light and fluffy like dandelion seeds. Sow fresh seeds on the surface of moist compost in spring. Germination is rapid — 7–10 days. Plants spread very vigorously by runners so plant in contained areas.",
+            "stem": "Divide rhizomes in spring or autumn. Cut sections of the creeping underground stems and replant 3–5 cm deep in moist soil. New growth appears within a few weeks. They establish and spread extremely readily."
+        },
+        "growth_days": 50
+    },
+    "king protea": {
+        "fun_facts": "King protea is the national flower of South Africa and appears on the South African cricket team logo. Individual flower heads can be up to 30 cm across and last up to 4 weeks as a cut flower without water.",
+        "species": "Protea cynaroides, Protea neriifolia, Protea repens",
+        "grow_methods": {
+            "seed": "Soak seeds overnight. Treat with fungicide before sowing. Plant 1 cm deep in well-drained sandy mix. Smoke treatment or smoke-infused water improves germination rates significantly. Germinate at 15–18°C over 4–8 weeks.",
+            "stem": "Take 10–15 cm semi-hardwood cuttings in late summer. Remove lower leaves and dip in rooting hormone. Insert in a 50:50 perlite/sand mix. Keep in a humid propagation unit at 20°C. Rooting takes 8–12 weeks."
+        },
+        "growth_days": 365
+    },
+    "spear thistle": {
+        "fun_facts": "The spear thistle is the national flower of Scotland. According to legend, invading Vikings were repelled when they stepped barefoot on thistles at night, alerting Scottish defenders and saving the kingdom.",
+        "species": "Cirsium vulgare, Cirsium arvense, Cirsium palustre",
+        "grow_methods": {
+            "seed": "Sow seeds in spring on the surface of compost in a sheltered spot outdoors. Germination takes 10–20 days. Thin plants to 60 cm apart. Self-seeds freely. Wear gloves when handling due to very sharp spines.",
+            "stem": "Dig up sections of root in spring and replant in prepared soil. Roots regenerate easily. Can also be propagated from root cuttings taken in winter — cut into 5 cm sections and plant vertically, top side up."
+        },
+        "growth_days": 90
+    },
+    "yellow iris": {
+        "fun_facts": "Yellow iris is thought to be the inspiration for the French royal emblem, the fleur-de-lis. It is highly toxic to livestock and can cause severe illness if eaten, yet it thrives alongside waterways across Europe.",
+        "species": "Iris pseudacorus, Iris flavescens, Iris orientalis",
+        "grow_methods": {
+            "seed": "Collect seeds from ripe pods in late summer and sow immediately in moist compost. Seeds need a cold period to germinate. Leave pots outside over winter. Germination occurs the following spring. Plants bloom in 2–3 years.",
+            "stem": "Divide rhizomes after flowering in late summer. Dig up the clump, cut rhizomes into sections with a fan of healthy leaves, trim leaves to 15 cm and replant shallowly in moist soil or at the water's edge."
+        },
+        "growth_days": 730
+    },
+    "globe-flower": {
+        "fun_facts": "Globe-flowers are closely related to buttercups and, like them, are toxic. Their nectar is accessed only by small flies that crawl inside the closed globe — making them one of evolution's most fascinating examples of specialised pollination.",
+        "species": "Trollius europaeus, Trollius chinensis, Trollius pumilus",
+        "grow_methods": {
+            "seed": "Sow fresh seeds in late summer on the surface of moist compost. Refrigerate for 4 weeks (cold stratification) then move to warmth. Germination takes 30–90 days. Plants bloom in their second year from seed.",
+            "stem": "Divide clumps immediately after flowering in early summer. Dig up the clump and carefully separate the fibrous root mass into sections. Replant in moist, cool soil and water well. Avoid disturbing during dry periods."
+        },
+        "growth_days": 365
+    },
+    "purple coneflower": {
+        "fun_facts": "Purple coneflower (Echinacea) is one of the most widely used medicinal herbs in the world, believed to boost the immune system. The name 'Echinacea' comes from the Greek word for hedgehog, referring to its spiky seed cone.",
+        "species": "Echinacea purpurea, Echinacea pallida, Echinacea angustifolia",
+        "grow_methods": {
+            "seed": "Sow seeds indoors 8–10 weeks before last frost, or direct sow in autumn. Cold stratification improves germination rates. Surface sow and cover lightly. Germination takes 10–21 days at 20–22°C. Flowers in second year.",
+            "stem": "Divide mature clumps in spring or autumn every 3–4 years. Dig up the plant, separate into sections with a spade and replant each section 45 cm apart. Water thoroughly after planting."
+        },
+        "growth_days": 120
+    },
+    "peruvian lily": {
+        "fun_facts": "Peruvian lily (Alstroemeria) has uniquely twisted leaves — each leaf is twisted at the base so the underside faces upward. They symbolise friendship and devotion and are among the longest-lasting cut flowers, staying fresh for up to 2 weeks.",
+        "species": "Alstroemeria aurea, Alstroemeria pelegrina, Alstroemeria psittacina",
+        "grow_methods": {
+            "seed": "Sow seeds in autumn in pots of compost. Seeds need cold stratification — leave pots outside over winter. Germination is variable, taking weeks to months. Plants may take 2–3 years to flower from seed.",
+            "stem": "Divide rhizomes in late summer after flowering. Dig carefully as rhizomes are brittle. Replant 15 cm deep and 30 cm apart. Handle gently and replant quickly — the roots dry out fast. Water well immediately after planting."
+        },
+        "growth_days": 180
+    },
+    "balloon flower": {
+        "fun_facts": "Balloon flowers earned their name from their inflated balloon-like buds, which pop open when squeezed. Their roots are edible and used in traditional Korean cuisine (doraji) as a vegetable and herbal remedy.",
+        "species": "Platycodon grandiflorus, Platycodon 'Astra Blue', Platycodon 'Fuji White'",
+        "grow_methods": {
+            "seed": "Sow seeds indoors 6–8 weeks before last frost or direct sow after frost. Surface sow on moist compost — seeds need light. Germination takes 14–21 days at 20°C. Do not disturb the roots once established — they resent transplanting.",
+            "stem": "Balloon flowers are difficult to propagate vegetatively as they have a deep taproot. Take basal cuttings in early spring close to the crown and root in moist perlite at 20°C with high humidity."
+        },
+        "growth_days": 100
+    },
+    "giant white arum lily": {
+        "fun_facts": "The arum lily is not a true lily. What appears to be a white petal is actually a leaf-like spathe. The true flower is the yellow spike (spadix) inside. It grows wild in South Africa and is considered a weed in Western Australia.",
+        "species": "Zantedeschia aethiopica, Zantedeschia elliottiana, Zantedeschia rehmannii",
+        "grow_methods": {
+            "seed": "Wash ripe berries and extract seeds. Sow immediately on moist compost at 21–24°C. Germination takes 1–3 months. Grow seedlings for 2 years before expecting flowers. Keep consistently moist throughout.",
+            "stem": "Divide rhizomes in autumn after the foliage dies back. Dig up the clump and separate rhizomes with offsets attached. Replant 7–10 cm deep in moist soil or shallow water. New growth appears in spring."
+        },
+        "growth_days": 365
+    },
+    "fire lily": {
+        "fun_facts": "Fire lilies in South Africa bloom prolifically after veld fires — smoke and ash signals from fire stimulate bulbs to flower. Scientists have identified karrikins in smoke as the precise chemical trigger for this remarkable adaptation.",
+        "species": "Cyrtanthus sanguineus, Cyrtanthus elatus (Vallota), Cyrtanthus mackenii",
+        "grow_methods": {
+            "seed": "Sow fresh seeds on the surface of moist, well-drained compost. Keep at 20–24°C. Germination takes 2–6 weeks. Grow seedlings for 3–4 years before expecting first flowers. Keep compost barely moist between waterings.",
+            "stem": "Remove bulb offsets in autumn. Separate offsets that have developed their own roots and pot individually in well-drained compost. Keep barely moist until new growth appears in the following spring."
+        },
+        "growth_days": 60
+    },
+    "pincushion flower": {
+        "fun_facts": "Pincushion flowers earned their name from the pin-like stamens that protrude from the centre of the flower, resembling pins stuck in a pincushion. They are wonderful butterfly magnets and excellent long-lasting cut flowers.",
+        "species": "Scabiosa caucasica, Scabiosa columbaria, Scabiosa atropurpurea",
+        "grow_methods": {
+            "seed": "Sow indoors 6–8 weeks before last frost. Sow seeds 6 mm deep at 20–22°C. Germination takes 10–15 days. Harden off and transplant after frost. Direct sow in mild climates in early spring.",
+            "stem": "Take basal cuttings in spring from young shoots emerging near the crown. Remove lower leaves and insert in moist perlite at 18°C. Roots should develop in 3–4 weeks. Pot up individually."
+        },
+        "growth_days": 90
+    },
+    "fritillary": {
+        "fun_facts": "Crown imperial fritillaries have a distinctive fox-like smell that deters rodents from eating the bulbs. A ring of honey-like nectar droplets visibly trembles inside each bell-shaped flower — historically called 'tears of Mary'.",
+        "species": "Fritillaria imperialis, Fritillaria meleagris (snakeshead), Fritillaria persica",
+        "grow_methods": {
+            "seed": "Collect seeds in late summer and sow immediately in pots of gritty compost. Leave outdoors through winter for natural cold stratification. Germination occurs in spring. Plants take 5–7 years to bloom from seed — patience is vital.",
+            "stem": "Separate bulb offsets in late summer after leaves die back. Replant offsets at three times their own depth in well-drained soil. Plants take 2–3 years to reach flowering size from offset propagation."
+        },
+        "growth_days": 120
+    },
+    "red ginger": {
+        "fun_facts": "Red ginger is not a true ginger plant — the showy red parts are bracts (modified leaves), not true flowers. The tiny white flowers are hidden inside. It is the national flower of Samoa and widely used in Hawaiian leis.",
+        "species": "Alpinia purpurata, Alpinia zerumbet (shell ginger), Hedychium coccineum",
+        "grow_methods": {
+            "seed": "Sow seeds in spring in warm (24–27°C) moist compost. Keep in high humidity. Germination takes 30–60 days. Seedlings grow slowly — expect flowers in 3–4 years.",
+            "stem": "Divide rhizomes in spring when new growth begins. Cut rhizomes into sections with 2–3 growth points each. Plant 5–8 cm deep in rich, moist compost. New shoots emerge within 4–6 weeks in warm conditions."
+        },
+        "growth_days": 180
+    },
+    "grape hyacinth": {
+        "fun_facts": "Despite their name, grape hyacinths (Muscari) are not true hyacinths but belong to a completely different genus. Each spike carries dozens of tiny urn-shaped flowers — sometimes up to 40 per spike — and they are among the best bulbs for naturalising in grass.",
+        "species": "Muscari armeniacum, Muscari botryoides, Muscari aucheri",
+        "grow_methods": {
+            "seed": "Collect ripe seeds in summer and sow in autumn in pots of compost left outside over winter. Germination is slow and erratic. Bulbs developing from seed take 3–5 years to reach flowering size.",
+            "stem": "Remove offsets from the main bulb in late summer when foliage dies back. Replant immediately 8–10 cm deep and 7–8 cm apart in well-drained soil. They naturalise freely over time forming attractive drifts."
+        },
+        "growth_days": 60
+    },
+    "corn poppy": {
+        "fun_facts": "Corn poppies became the symbol of remembrance for WWI soldiers after the poem 'In Flanders Fields'. Each flower lasts only 3–4 days but the plant produces new blooms continuously. The seeds can remain viable in soil for over 100 years.",
+        "species": "Papaver rhoeas, Papaver commutatum, Papaver dubium",
+        "grow_methods": {
+            "seed": "Sow directly where they are to flower — poppies hate transplanting. Scatter seeds on prepared soil surface in autumn or early spring. Thin to 30 cm. Germination takes 7–14 days. They self-seed prolifically once established.",
+            "stem": "Poppies cannot be propagated from stem cuttings due to their delicate taproot. The best propagation method is direct sowing from ripe seed heads collected in late summer or by allowing the plants to self-seed naturally."
+        },
+        "growth_days": 60
+    },
+    "prince of wales feathers": {
+        "fun_facts": "Celosia (cockscomb) has two main forms: the brain-like crested form and the feathery plume form. Both are caused by fasciation — an abnormal growth pattern. The entire plant is edible: leaves, stems and flowers are all consumed in West Africa.",
+        "species": "Celosia plumosa, Celosia cristata, Celosia spicata",
+        "grow_methods": {
+            "seed": "Start indoors 4–6 weeks before last frost. Surface sow seeds on moist compost — they need light to germinate. Germination takes 7–14 days at 21–24°C. Transplant once nights stay above 15°C. They hate cold.",
+            "stem": "Take tip cuttings 8–10 cm long in summer. Remove lower leaves. Insert in moist perlite and keep at 24°C with high humidity. Roots form in 2–3 weeks. Pot up and keep very warm for best results."
+        },
+        "growth_days": 65
+    },
+    "stemless gentian": {
+        "fun_facts": "The brilliant blue pigment of gentian flowers is so distinctive that 'gentian blue' is a named shade of colour. The name 'gentian' comes from Gentius, an Illyrian king who discovered the medicinal properties of the root around 500 BC.",
+        "species": "Gentiana acaulis, Gentiana sino-ornata, Gentiana verna",
+        "grow_methods": {
+            "seed": "Fresh seeds sown in autumn on gritty compost left outside for cold stratification work best. Germination is slow and erratic, occurring over the following spring. Plants are slow growing and may take 3–4 years to flower.",
+            "stem": "Divide cushion-forming species in early spring before growth begins. Separate into small sections and replant in gritty, acidic compost. Keep moist and position in bright but indirect light — avoid disturbing roots once established."
+        },
+        "growth_days": 365
+    },
+    "artichoke": {
+        "fun_facts": "Artichokes are the flower buds of a thistle plants — if allowed to bloom they produce spectacular purple flowers 15 cm across. They have been cultivated for over 3,000 years and were considered an aphrodisiac in ancient Rome.",
+        "species": "Cynara cardunculus var. scolymus, Cynara cardunculus, Cynara baetica",
+        "grow_methods": {
+            "seed": "Sow indoors 8–10 weeks before the last frost. Sow 6 mm deep at 21°C. Germination takes 7–14 days. Vernalize young plants by exposing to temperatures of 7°C for 2–3 weeks to promote flowering. Transplant after last frost.",
+            "stem": "Divide established plants in spring. Dig up offsets from the base, ensuring each has roots attached. Replant 90 cm apart in rich soil. Division is faster and more reliable than seed propagation."
+        },
+        "growth_days": 120
+    },
+    "sweet william": {
+        "fun_facts": "Sweet Williams have been garden favourites for over 400 years. Their names are thought to honour either St William of York or William Shakespeare. The clove-like scent is used in perfumery and they are one of the most fragrant bedding flowers.",
+        "species": "Dianthus barbatus, Dianthus deltoides, Dianthus chinensis",
+        "grow_methods": {
+            "seed": "Sow seeds outdoors in early summer or indoors in winter. Sow 6 mm deep at 18–20°C. Germination takes 5–10 days. Transplant to final position in autumn for flowering the following late spring and summer.",
+            "stem": "Take 5–8 cm cuttings from non-flowering shoots in summer. Insert in sandy compost. Keep moist and shaded. Roots form in 3–4 weeks. Pot up and overwinter in a cool, frost-free place."
+        },
+        "growth_days": 365
+    },
+    "carnation": {
+        "fun_facts": "Carnations have been cultivated for over 2,000 years — among the world's oldest cultivated flowers. White carnations can be dyed any colour by placing cut stems in coloured water, demonstrating plant capillary action dramatically.",
+        "species": "Dianthus caryophyllus, Dianthus plumarius, Dianthus gratianopolitanus",
+        "grow_methods": {
+            "seed": "Sow indoors 8–10 weeks before last frost. Sow 6 mm deep at 18–21°C. Germination takes 7–14 days. Surface sow for annual types. Perennial carnations bloom in 2nd year from seed. Thin or transplant to final positions.",
+            "stem": "Take 10–12 cm lateral shoot cuttings between July and August ('pipings'). Remove lower leaves. Dip in rooting hormone and insert in gritty compost. Cover with a plastic bag as a humidity tent. Roots form in 3–4 weeks."
+        },
+        "growth_days": 90
+    },
+    "garden phlox": {
+        "fun_facts": "Garden phlox is one of the most fragrant summer perennials. Its name comes from the Greek word for flame. They are native only to North America but now grown worldwide. A single plant can produce hundreds of sweetly scented individual flowers per season.",
+        "species": "Phlox paniculata, Phlox maculata, Phlox stolonifera",
+        "grow_methods": {
+            "seed": "Sow seeds in autumn outdoors for natural cold stratification. Germination occurs the following spring in 21–30 days. Named varieties do not breed true from seed so they are propagated vegetatively.",
+            "stem": "Take 8–10 cm stem cuttings in spring or early summer from new growth. Remove lower leaves and insert in moist perlite. Roots form in 2–3 weeks. Alternatively take root cuttings in winter: cut 5 cm root sections and plant vertically."
+        },
+        "growth_days": 120
+    },
+    "love in the mist": {
+        "fun_facts": "Love in the Mist gets its whimsical name from the delicate thread-like leaves that surround each flower like a wispy mist. Its inflated seed pods are highly decorative and used in dried flower arrangements. All parts are mildly toxic if eaten.",
+        "species": "Nigella damascena, Nigella sativa (black seed), Nigella hispanica",
+        "grow_methods": {
+            "seed": "Sow directly in its final growing spot — it dislikes transplanting due to a taproot. Scatter seeds on prepared soil in autumn or spring. Thin to 15–20 cm. Germination takes 10–15 days. Self-seeds abundantly each year.",
+            "stem": "Love in the Mist cannot be propagated from cuttings as it has a delicate taproot that doesn't survive disturbance. Allow plants to self-seed naturally, or collect seeds from the decorative pods when ripe and sow the following season."
+        },
+        "growth_days": 60
+    },
+    "mexican aster": {
+        "fun_facts": "Mexican asters (Cosmos) are spectacularly easy to grow. Their feathery foliage is so fine that in their native Mexico it was used in weaving. The name 'cosmos' means 'ordered beauty' in Greek, reflecting the perfect symmetry of their flowers.",
+        "species": "Cosmos bipinnatus, Cosmos sulphureus, Cosmos atrosanguineus (chocolate cosmos)",
+        "grow_methods": {
+            "seed": "Direct sow after last frost or start indoors 4–6 weeks early. Sow 6 mm deep at 20–24°C. Germination takes 7–10 days. Thin to 30–45 cm apart. Avoid over-fertilising — too many nutrients produce leaves, not flowers.",
+            "stem": "Take 8–10 cm tip cuttings in summer. Remove lower leaves. Insert in moist perlite and keep warm. Roots develop in 2–3 weeks. However Cosmos is so easy from seed that cuttings are rarely necessary."
+        },
+        "growth_days": 65
+    },
+    "alpine sea holly": {
+        "fun_facts": "Alpine sea holly looks like a thistle but is actually related to carrots and parsley. The steel-blue stems, bracts and flowers are all coloured — not just the flower heads. Roman noblewomen reportedly ate the roots candied as a sweet delicacy.",
+        "species": "Eryngium alpinum, Eryngium planum, Eryngium giganteum",
+        "grow_methods": {
+            "seed": "Seeds require cold stratification. Sow in autumn outdoors or refrigerate moist seeds for 4–6 weeks before spring sowing. Germination is slow and erratic, taking 30–60+ days. Plants flower in their second year.",
+            "stem": "Take root cuttings in winter. Dig up the plant and cut sections from thick roots — each 5 cm long. Plant vertically in gritty compost. New shoots emerge in spring. Divisions can also be made carefully in early spring."
+        },
+        "growth_days": 365
+    },
+    "ruby-lipped cattleya": {
+        "fun_facts": "Cattleya orchids were the dominant corsage orchid of the 20th century. The first Cattleya was reportedly discovered when the plant was used as packing material for other botanical specimens sent to England — then it bloomed and astonished everyone.",
+        "species": "Cattleya labiata, Cattleya trianae (Christmas orchid), Cattleya mossiae",
+        "grow_methods": {
+            "seed": "Orchid seeds require sterile tissue culture conditions with nutrient agar. This is impractical for home growers. Seeds take many months to develop and 3–7 years to first flowering.",
+            "stem": "Divide mature plants when they outgrow their containers. Cut the rhizome with a sterile sharp knife, ensuring each section has at least 3 pseudobulbs. Pot in bark medium. Backbulbs can be potted separately to produce new growth."
+        },
+        "growth_days": 1095
+    },
+    "cape flower": {
+        "fun_facts": "Erica (Cape heather) is one of the most diverse plant genera in the world — over 860 species, most native to South Africa's Cape region. They form the basis of the fynbos biome, which has more plant species per km² than the Amazon rainforest.",
+        "species": "Erica carnea, Erica vagans, Erica cinerea",
+        "grow_methods": {
+            "seed": "Sow seeds on moist, acidic ericaceous compost in spring. Do not cover — seeds need light. Smoke treatment with karrikins improves germination. Germination takes 21–42 days at 13–18°C.",
+            "stem": "Take 4–6 cm heel cuttings of current year's growth in late summer. Remove lower leaves. Dip in rooting hormone and insert in lime-free, gritty compost. Keep moist and covered. Roots form in 6–10 weeks."
+        },
+        "growth_days": 365
+    },
+    "great masterwort": {
+        "fun_facts": "Masterwort's unusual star-shaped flowers are made up of tiny florets surrounded by petal-like bracts — similar in structure to a poinsettia. The scientific name 'Astrantia' means star, referring to these beautiful star-shaped clusters.",
+        "species": "Astrantia major, Astrantia maxima, Astrantia minor",
+        "grow_methods": {
+            "seed": "Seeds need cold stratification. Sow in autumn or refrigerate moist seeds for 4 weeks before spring sowing. Germination takes 30–60 days at cool temperatures (10–15°C). Plants flower in their second year. Self-seeds freely.",
+            "stem": "Divide clumps in spring or autumn every 2–3 years to maintain vigour. Dig up the clump, separate into sections with healthy roots and shoots, and replant 45 cm apart in moist, humus-rich soil in partial shade."
+        },
+        "growth_days": 365
+    },
+    "siam tulip": {
+        "fun_facts": "Siam tulip is not a true tulip — it is a curcuma, related to ginger and turmeric. The showy pink 'petals' are actually bracts, not true flower petals. In Thailand they are called 'krachiao' and traditionally bloom with the monsoon rains each year.",
+        "species": "Curcuma alismatifolia, Curcuma longa (turmeric), Curcuma zedoaria",
+        "grow_methods": {
+            "seed": "Rarely grown from seed at home as germination is difficult. If attempting, sow fresh seeds at 25–28°C in warm, moist compost. Keep covered and humid. Germination may take months. Plants take 3+ years to bloom from seed.",
+            "stem": "Divide rhizomes in spring as new growth emerges. Separate rhizome sections, each with at least one growth bud. Plant 5–8 cm deep in rich, well-drained compost. New shoots appear within 6–8 weeks in warmth."
+        },
+        "growth_days": 120
+    },
+    "lenten rose": {
+        "fun_facts": "Lenten roses (Helleborus) bloom in the depths of winter and early spring, earning the nickname 'Christmas rose'. Despite their delicate appearance, all parts are highly toxic. Individual plants can live for 20 or more years.",
+        "species": "Helleborus orientalis, Helleborus niger (Christmas rose), Helleborus foetidus",
+        "grow_methods": {
+            "seed": "Collect fresh seeds after pods split open (usually July). Sow immediately — fresh seeds germinate much better than stored seeds. Leave pots outside over winter for cold stratification. Germination in spring. Plants bloom in 2–3 years.",
+            "stem": "Divide established clumps in spring after flowering. Dig deeply and separate crowns carefully, ensuring each section has healthy shoots and roots. Replant at original depth in shade. Plants take time to re-establish and will sulk briefly."
+        },
+        "growth_days": 730
+    },
+    "barbeton daisy": {
+        "fun_facts": "Gerbera daisies are the 5th most popular cut flower in the world. NASA included them in their Clean Air Study as one of the top 10 air-purifying houseplants, particularly effective at removing benzene and formaldehyde.",
+        "species": "Gerbera jamesonii, Gerbera hybrida, Gerbera viridifolia",
+        "grow_methods": {
+            "seed": "Sow seeds indoors 12–18 weeks before desired bloom time. Plant seeds vertically with the pointed end down on moist compost. Keep at 21–24°C. Germination takes 14–21 days. Transplant when large enough to handle.",
+            "stem": "Divide plants in spring by carefully digging up the crown and separating offshoots that have formed around the parent. Each offset should have roots attached. Replant at the same depth — burying the crown will cause rotting."
+        },
+        "growth_days": 90
+    },
+    "daffodil": {
+        "fun_facts": "Daffodils contain lycorine, a poisonous alkaloid that deters animals from eating them. This is why they naturalise so successfully — rabbits and deer avoid them. Daffodil sap can also irritate the skin of other cut flowers, so they should be conditioned separately before mixing in arrangements.",
+        "species": "Narcissus pseudonarcissus, Narcissus jonquilla, Narcissus tazetta",
+        "grow_methods": {
+            "seed": "Sow ripe seeds in autumn in pots of gritty compost left outside over winter. Germination is slow and results are unpredictable. Seedlings take 5–7 years to reach blooming size. Most gardeners propagate by bulb offsets.",
+            "stem": "Plant bulbs in autumn at a depth of three times their diameter. In late summer when leaves die back, lift clusters and separate individual bulbs and offsets. Replant offset bulbs immediately at the correct depth in well-drained soil."
+        },
+        "growth_days": 60
+    },
+    "sword lily": {
+        "fun_facts": "Gladiolus is named from the Latin for small sword, referring to its sword-shaped leaves. Roman gladiators were named from the same Latin root. They bloom from the bottom of the spike upward — allowing cut flowers to continue opening in the vase.",
+        "species": "Gladiolus communis, Gladiolus callianthus, Gladiolus papilio",
+        "grow_methods": {
+            "seed": "Sow seeds in spring in pots of compost at 20°C. Germination takes 14–21 days. Seedlings take 2–3 years to bloom and will not exactly resemble the parent plant. Corms are the preferred and faster propagation method.",
+            "stem": "Plant corms 10–15 cm deep and 15 cm apart in spring. After flowering, corms develop small cormlets at their base. Lift in autumn, remove and save cormlets. Store dry over winter. Plant cormlets in spring — they bloom after 2 years."
+        },
+        "growth_days": 70
+    },
+    "poinsettia": {
+        "fun_facts": "Poinsettias are native to Mexico, where they can grow into small trees up to 4 m tall. The colourful 'petals' are actually modified leaves called bracts — the true flowers are the tiny yellow structures (cyathia) in the centre of each cluster of bracts.",
+        "species": "Euphorbia pulcherrima, various cultivated colour varieties",
+        "grow_methods": {
+            "seed": "Not commonly grown from seed at home. Sow fresh seeds in spring in well-drained compost at 21–25°C. Germination takes 2–3 weeks. Seedlings are variable and rarely match the parent. Cuttings are far more reliable.",
+            "stem": "Take 10–15 cm tip cuttings in late spring. Wash off the white milky sap, let the cut end dry for 1 hour, dip in rooting hormone and insert in moist perlite. Keep at 21°C with high humidity. Roots form in 4–6 weeks."
+        },
+        "growth_days": 365
+    },
+    "bolero deep blue": {
+        "fun_facts": "Plumbago (Cape plumbago) produces incredibly sticky calyces that cling to animal fur and clothing for seed dispersal. The name comes from the Latin for lead (plumbum) as it was historically believed to cure lead poisoning.",
+        "species": "Plumbago auriculata, Plumbago indica, Plumbago zeylanica",
+        "grow_methods": {
+            "seed": "Sow seeds in spring in well-drained compost at 18–21°C. Germination takes 21–30 days. Seedlings grow slowly initially. Transplant to individual pots when 10 cm tall. Plants may bloom in their first year if started early enough.",
+            "stem": "Take 8–10 cm semi-hardwood cuttings in summer. Remove lower leaves. Dip in rooting hormone. Insert in moist perlite at 20–22°C with high humidity. Roots form in 4–6 weeks. Pot in well-drained compost."
+        },
+        "growth_days": 180
+    },
+    "wallflower": {
+        "fun_facts": "Wallflowers earned their name from their habit of growing in old walls and rocky crevices where little else can survive. Victorian-era wallflowers had an intensely sweet clove-like scent — sadly, many modern varieties have lost much of this fragrance.",
+        "species": "Erysimum cheiri, Erysimum 'Bowles Mauve', Erysimum bicolor",
+        "grow_methods": {
+            "seed": "Sow seeds in a seedbed outdoors in late spring/early summer. Thin to 15 cm apart. Move to final positions in autumn. Plants flower the following spring. Germination takes 7–14 days at 18°C.",
+            "stem": "Take 8–10 cm tip cuttings from named perennial varieties in summer. Remove lower leaves and flower buds. Insert in gritty compost. Keep shaded and moist. Roots form in 3–4 weeks. Overwinter in a frost-free place."
+        },
+        "growth_days": 365
+    },
+    "marigold": {
+        "fun_facts": "Marigolds are one of the most useful companion plants in the garden — their roots secrete a chemical that repels soil nematodes, and their scent deters aphids. They are sacred in Hindu festivals and used in Day of the Dead celebrations in Mexico.",
+        "species": "Tagetes patula (French marigold), Tagetes erecta (African marigold), Tagetes tenuifolia (Signet)",
+        "grow_methods": {
+            "seed": "Sow indoors 6–8 weeks before last frost or direct sow after frost. Sow 6 mm deep. Germination takes 5–7 days at 21–24°C. Thin or transplant to 20–30 cm apart. Deadhead regularly for extended blooming into autumn.",
+            "stem": "Take 8–10 cm tip cuttings in late summer. Remove lower leaves. Insert in moist perlite. Keep at 22°C. Roots form in 2–3 weeks. Useful for maintaining particularly fine varieties over winter indoors."
+        },
+        "growth_days": 50
+    },
+    "buttercup": {
+        "fun_facts": "The old folk test of holding a buttercup under someone's chin to see if they like butter actually works — but not for the reason people think. The highly polished concave petals reflect yellow light upward onto the chin. All buttercups are mildly toxic to grazing animals.",
+        "species": "Ranunculus acris, Ranunculus repens (creeping), Ranunculus bulbosus",
+        "grow_methods": {
+            "seed": "Sow seeds in autumn in pots left outside for cold stratification over winter. Germination occurs in spring. Seeds can also be surface sown on moist compost in spring and kept at 15°C for 21–30 days.",
+            "stem": "Divide clumps in spring or autumn. Dig up the fibrous root system and separate into smaller clumps. Replant immediately in moist, well-drained soil. Creeping buttercups also spread naturally by surface runners."
+        },
+        "growth_days": 90
+    },
+    "oxeye daisy": {
+        "fun_facts": "Oxeye daisies have inspired 'He loves me, he loves me not' petal counting for centuries. They open and close with sunlight — closing at night to protect pollen. Their flowers naturally contain insect-repelling pyrethrins.",
+        "species": "Leucanthemum vulgare, Leucanthemum maximum, Leucanthemum × superbum",
+        "grow_methods": {
+            "seed": "Sow directly outdoors after the last frost. Surface sow seeds as they need light to germinate. Thin to 30–45 cm apart. Germination takes 10–21 days. They self-seed freely and will naturalise in meadows.",
+            "stem": "Divide clumps every 2–3 years in spring or autumn. Dig up the clump and separate vigorous outer sections. Discard the woody centre. Replant sections 30–45 cm apart in well-drained soil."
+        },
+        "growth_days": 90
+    },
+    "common dandelion": {
+        "fun_facts": "Dandelions are one of the most nutritious plants you can eat — leaves contain more beta-carotene than carrots and more calcium than milk. Every part is edible. Their 'clocks' (seed heads) are a sophisticated dispersal mechanism — each seed has its own parachute-like pappus.",
+        "species": "Taraxacum officinale, Taraxacum erythrospermum, Taraxacum laevigatum",
+        "grow_methods": {
+            "seed": "Collect ripe seeds from puffballs. Sow on the surface of moist compost in spring — seeds need light. Germination is rapid, usually 5–10 days at 15–20°C. Plants grow extremely easily in virtually any conditions.",
+            "stem": "Dandelions regenerate readily from their deep taproot — any section left in the ground will regrow. New plants can be started from 5 cm root cuttings planted vertically in pots of compost."
+        },
+        "growth_days": 45
+    },
+    "petunia": {
+        "fun_facts": "Petunias are related to tomatoes, peppers and tobacco — all members of the Solanaceae family. The name comes from the French 'petun', borrowed from a Tupi-Guaraní word for tobacco. They are native to South America and come in virtually every colour except true black.",
+        "species": "Petunia × atkinsiana, Petunia integrifolia, Petunia axillaris",
+        "grow_methods": {
+            "seed": "Start indoors 10–12 weeks before last frost. Surface sow on moist compost — seeds need light to germinate. Keep at 24°C. Germination takes 7–14 days. Transplant after frost danger passes. Pinch tips for bushy plants.",
+            "stem": "Take 8–10 cm tip cuttings in late summer. Remove lower leaves and flowers. Insert in moist perlite. Keep at 20°C. Roots form in 2–3 weeks. This is the best way to overwinter treasured trailing cascading varieties."
+        },
+        "growth_days": 60
+    },
+    "wild pansy": {
+        "fun_facts": "Wild pansies (Viola tricolor) are the ancestor of all modern garden pansies, which were developed in the 19th century by crossing three wild species. Shakespeare mentioned them as 'love in idleness'. The flowers are completely edible and used to decorate cakes.",
+        "species": "Viola tricolor, Viola cornuta, Viola odorata (sweet violet)",
+        "grow_methods": {
+            "seed": "Sow seeds in summer in a seedbed for spring flowering, or in early autumn for winter/spring blooms. Germination takes 10–14 days at 18°C in darkness. Keep moist. Thin plants to 15 cm apart.",
+            "stem": "Take stem cuttings from shoots arising near the base in late summer. Remove lower leaves and flower buds. Insert in moist gritty compost. Keep cool and humid. Roots form in 3–4 weeks."
+        },
+        "growth_days": 60
+    },
+    "primula": {
+        "fun_facts": "Primulas have a remarkable hidden superpower — some varieties exist in two different flower forms (pin and thrum flowers). Cross-pollination between pin and thrum is more successful than self-pollination, promoting genetic diversity. This was studied by Charles Darwin.",
+        "species": "Primula vulgaris, Primula veris (cowslip), Primula auricula",
+        "grow_methods": {
+            "seed": "Sow in winter or early spring — seeds germinate best at cool temperatures (around 15°C). Surface sow on moist compost. Germination takes 14–30 days. Do not allow compost to dry out. Prick out when large enough.",
+            "stem": "Divide established clumps immediately after flowering in late spring. Separate crowns so each section has healthy roots and a rosette of leaves. Replant in cool, moist soil in partial shade. Water well."
+        },
+        "growth_days": 90
+    },
+    "sunflower": {
+        "fun_facts": "Young sunflowers track the sun from east to west during the day and reset overnight (heliotropism). Once fully mature they stop tracking and face east permanently. A single flower head can contain up to 2,000 seeds arranged in a perfect Fibonacci spiral.",
+        "species": "Helianthus annuus, Helianthus tuberosus (Jerusalem artichoke), Helianthus debilis",
+        "grow_methods": {
+            "seed": "Direct sow after last frost, 2–3 cm deep. Germination takes 7–10 days at 20–25°C. Thin to 45–60 cm apart for giant varieties. Support tall varieties with stakes. Water deeply but infrequently once established.",
+            "stem": "Take 10–15 cm tip cuttings in early summer from branching varieties. Remove lower leaves and insert in moist perlite at 20°C. Roots form in 2–3 weeks. Less common than seed propagation but useful for preserving named varieties."
+        },
+        "growth_days": 80
+    },
+    "pelargonium": {
+        "fun_facts": "What people commonly call 'geraniums' in window boxes are actually pelargoniums — a different genus entirely. True geraniums are hardy perennials. Pelargoniums contain aromatic oils used extensively in perfumery, including the prized rose geranium oil.",
+        "species": "Pelargonium zonale (zonal), Pelargonium peltatum (ivy-leaved), Pelargonium graveolens (scented)",
+        "grow_methods": {
+            "seed": "Start seeds indoors 12–16 weeks before last frost. Sow 3 mm deep at 22–24°C. Germination takes 5–14 days. Transplant when seedlings have 2–3 true leaves. Named varieties need cuttings to come true.",
+            "stem": "Take 8–10 cm tip cuttings in late summer or spring. Let the cut end dry for 1 hour before inserting in gritty compost. Do not cover — pelargoniums are prone to rot in high humidity. Roots form in 3–4 weeks."
+        },
+        "growth_days": 70
+    },
+    "bishop of llandaff": {
+        "fun_facts": "Bishop of Llandaff dahlia was named after an actual Bishop of Llandaff in Wales in the 1920s. Its combination of dark bronze-purple foliage and vivid scarlet red blooms was revolutionary when introduced. It remains one of the world's best-selling dahlia varieties over 100 years later.",
+        "species": "Dahlia 'Bishop of Llandaff', various Bishop Series dahlias",
+        "grow_methods": {
+            "seed": "Dahlia seeds from hybrid plants will not produce identical offspring. Sow indoors 6–8 weeks before last frost at 21°C. Germination in 5–14 days. Plants may flower in their first year. Tubers should be stored over winter.",
+            "stem": "Take basal cuttings in spring when 10–15 cm of new growth has emerged from stored tubers. Cut at the base with 2 leaves attached. Remove lower leaves, dip in rooting hormone. Root in moist perlite at 21°C. Roots in 2–3 weeks."
+        },
+        "growth_days": 90
+    },
+    "gaura": {
+        "fun_facts": "Gaura flowers dance gracefully in the slightest breeze, earning them the nickname 'whirling butterflies'. Individual flowers last only a single day — like those of their cousin the evening primrose — but the plant produces blooms continuously from late spring until frost.",
+        "species": "Gaura lindheimeri, Oenothera lindheimeri (reclassified name), various cultivars",
+        "grow_methods": {
+            "seed": "Sow seeds indoors 6–8 weeks before last frost or direct sow in spring. Sow 6 mm deep at 18–21°C. Germination takes 14–21 days. Transplant 60 cm apart. First-year plants may bloom late in the season.",
+            "stem": "Take basal cuttings in spring from new shoots. Take 8–10 cm cuttings, remove lower leaves and root in moist perlite at 20°C. Roots form in 3–4 weeks. Named varieties with specific colours must be propagated this way."
+        },
+        "growth_days": 90
+    },
+    "geranium": {
+        "fun_facts": "Hardy geraniums (cranesbills) get their name from the beak-like seed pods — 'geranos' is Greek for crane. They are problem-free garden perennials. After flowering, cutting plants right back to the ground stimulates a fresh flush of blooms within weeks.",
+        "species": "Geranium pratense, Geranium psilostemon, Geranium sanguineum",
+        "grow_methods": {
+            "seed": "Sow seeds in autumn in pots left outside over winter for cold stratification. Germination occurs in spring taking 21–30 days. Species geraniums can also be sown in spring after 4 weeks in the refrigerator first.",
+            "stem": "Divide clumps in spring or autumn. Dig up the plant and separate into sections with a spade or by hand. Each section needs roots and healthy shoots. Replant 30–45 cm apart in well-prepared soil."
+        },
+        "growth_days": 90
+    },
+    "orange dahlia": {
+        "fun_facts": "Dahlias were first brought to Europe from Mexico in the 18th century. The Aztecs used dahlia tubers as a food source and their hollow stems as water pipes. Mexico declared Dahlia pinnata its national flower in 1963.",
+        "species": "Dahlia 'David Howard', Dahlia 'Totally Orange', Dahlia 'Karma Naomi'",
+        "grow_methods": {
+            "seed": "Start seeds indoors 6–8 weeks before last frost at 21°C. Germination in 5–14 days. Very few named orange dahlia varieties come true from seed — most are grown from tubers. Seed-grown plants typically produce single-flowered types.",
+            "stem": "Take basal cuttings in spring from tubers started into growth indoors. When shoots reach 10–15 cm, cut at the base. Remove lower leaves and root in moist perlite at 21°C with humidity cover. Roots form in 2–3 weeks."
+        },
+        "growth_days": 90
+    },
+    "pink-yellow dahlia?": {
+        "fun_facts": "Bicoloured dahlias sometimes exhibit 'sporting' — mutation where a single stem produces a completely different colour from the parent plant. These sports can be propagated as entirely new named varieties.",
+        "species": "Various Dahlia hybrid cultivars with two-tone colouring",
+        "grow_methods": {
+            "seed": "Bicolour dahlias do not come true from seed. Sow seed-grown mixes indoors 6–8 weeks before last frost at 21°C for a range of colours. Named bicolour varieties must be propagated from cuttings or tuber division.",
+            "stem": "Take basal cuttings in spring from overwintered tubers. When shoots reach 10–15 cm, cut cleanly at the base. Remove lower leaves, insert in moist perlite at 21°C with a humidity cover. Roots form in 2–3 weeks."
+        },
+        "growth_days": 90
+    },
+    "cautleya spicata": {
+        "fun_facts": "Cautleya is a rare Himalayan ginger relative found in the mountains of Nepal, Bhutan and northern India at elevations of 1,500–3,000 metres. The combination of golden-yellow flowers and deep maroon bracts makes it spectacular in the late-summer shade garden.",
+        "species": "Cautleya spicata, Cautleya gracilis",
+        "grow_methods": {
+            "seed": "Sow fresh seeds in spring at 24°C in moist, well-drained compost and keep humid. Germination is slow — 30–60 days. Grow seedlings on in warmth. Plants may take 2–3 years to flower from seed.",
+            "stem": "Divide rhizomes in spring when new growth begins. Dig up the clump and separate rhizome sections, each with at least one growing point. Replant in part-shaded moist soil. New growth appears within 4–6 weeks."
+        },
+        "growth_days": 120
+    },
+    "japanese anemone": {
+        "fun_facts": "Despite being called 'Japanese', this anemone actually originated in China and arrived in Japan centuries ago. It reached English gardens after plant hunter Robert Fortune discovered it in China in 1844 — and it was then mistakenly named the Japanese anemone.",
+        "species": "Anemone × hybrida, Anemone hupehensis, Anemone tomentosa",
+        "grow_methods": {
+            "seed": "Sow fresh seeds immediately after collection in autumn in pots left outside for cold stratification. Germination is erratic and may take months. Named varieties should be propagated vegetatively as they will not come true from seed.",
+            "stem": "Take root cuttings in winter. Dig up the plant and cut 5 cm sections from pencil-thick roots. Lay horizontally in trays of compost and cover lightly. Keep cool. New shoots emerge in spring. Also divide clumps in early spring."
+        },
+        "growth_days": 365
+    },
+    "black-eyed susan": {
+        "fun_facts": "Black-eyed Susans are also called 'brown Betty' and 'yellow ox-eye'. They are native to North American prairies. The dark cone centre is not actually a single structure — it is a mass of tiny tube flowers surrounded by ray flowers (the yellow 'petals').",
+        "species": "Rudbeckia hirta, Rudbeckia fulgida, Rudbeckia laciniata",
+        "grow_methods": {
+            "seed": "Direct sow in spring after last frost or start indoors 6–8 weeks early. Surface sow — seeds need light to germinate. Germination takes 7–21 days at 18–21°C. Thin to 45 cm apart. Annual types bloom in their first year.",
+            "stem": "Divide perennial Rudbeckia clumps in spring or autumn every 3–4 years. Dig up the clump, separate outer vigorous sections and discard the woody centre. Replant sections 45 cm apart. Alternatively take basal cuttings in spring."
+        },
+        "growth_days": 70
+    },
+    "silverbush": {
+        "fun_facts": "Convolvulus cneorum is related to bindweed and morning glory — but unlike its weedy relatives it is a well-behaved ornamental shrub. The leaves are covered in fine silky hairs that reflect sunlight, creating a beautiful silver shimmering effect.",
+        "species": "Convolvulus cneorum, Convolvulus sabatius, Convolvulus tricolor",
+        "grow_methods": {
+            "seed": "Sow seeds in spring at 18–21°C in well-drained compost. Germination takes 14–21 days. Soak seeds in warm water for 12 hours before sowing to improve germination. Pot up individually when seedlings are large enough.",
+            "stem": "Take 8–10 cm semi-hardwood cuttings in summer. Remove lower leaves. Dip in rooting hormone. Insert in gritty compost. Keep in a shaded humid spot. Roots form in 4–6 weeks. Pot up into well-drained compost."
+        },
+        "growth_days": 180
+    },
+    "californian poppy": {
+        "fun_facts": "The California poppy is the state flower of California. Spanish missionaries called it 'cup of gold'. It closes its petals at night and in cloudy weather to protect pollen. Unlike opium poppies, it has mild sedative but no narcotic properties.",
+        "species": "Eschscholzia californica, Eschscholzia lobbii, Eschscholzia caespitosa",
+        "grow_methods": {
+            "seed": "Direct sow in autumn (mild climates) or early spring. Scatter thinly on bare, well-drained soil — do not cover as seeds need light. Do NOT transplant — they have a taproot. Thin to 15 cm. Germination takes 7–14 days.",
+            "stem": "California poppies cannot be propagated from cuttings. They are best grown from seed only. Allow plants to self-seed by leaving seed pods to ripen and drop — the garden will re-colonise itself each year automatically."
+        },
+        "growth_days": 60
+    },
+    "osteospermum": {
+        "fun_facts": "Osteospermum ('African daisies') track the sun throughout the day. They close at night and in cold or cloudy weather. The 'Whirligig' variety with its spoon-shaped petals is one of the most unusual flower forms in cultivation.",
+        "species": "Osteospermum ecklonis, Osteospermum fruticosum, Osteospermum jucundum",
+        "grow_methods": {
+            "seed": "Start indoors 6–8 weeks before last frost at 18–21°C. Surface sow — seeds need light. Germination takes 14–21 days. Transplant after frost. Annual types bloom from seed in first year. Deadhead regularly for continuous flowers.",
+            "stem": "Take 8–10 cm tip cuttings in late summer — the best method for named varieties. Remove lower leaves. Insert in gritty moist compost at 18–20°C. Roots form in 3–4 weeks. Overwinter frost-free and plant out the following spring."
+        },
+        "growth_days": 80
+    },
+    "spring crocus": {
+        "fun_facts": "Saffron — the world's most expensive spice — comes from a related crocus species (Crocus sativus). Each flower produces only three red stigmas and it takes 150,000 flowers to produce 1 kg of saffron. Spring crocuses push through snow — one of the most eagerly awaited signs of spring.",
+        "species": "Crocus vernus, Crocus chrysanthus, Crocus tommasinianus",
+        "grow_methods": {
+            "seed": "Collect seed pods before they fully open. Sow fresh seeds in autumn in pots of gritty compost left outside. Germination occurs in spring at cool temperatures. Take 3–5 years to reach blooming size from seed.",
+            "stem": "Plant corms 8–10 cm deep in autumn. After leaves die back in late spring, carefully lift the corms and separate the cormlets that have formed around the parent. Replant immediately at the correct depth. They naturalise freely in grass."
+        },
+        "growth_days": 90
+    },
+    "bearded iris": {
+        "fun_facts": "The rainbow of iris colours inspired naming the plant after Iris, Greek goddess of the rainbow. The 'beard' — a row of fuzzy hairs on the lower petals — guides bees to the pollen. There are over 300 iris species native to every continent except Australia.",
+        "species": "Iris germanica, Iris variegata, Iris pallida",
+        "grow_methods": {
+            "seed": "Collect seeds from ripe pods and sow in autumn in pots left outside for cold stratification. Expect germination in spring after 3–6 months. Seedlings take 2–3 years to bloom and will not resemble the parent.",
+            "stem": "Divide rhizomes after flowering in mid-summer. Cut rhizomes into sections, each with healthy roots and a fan of leaves. Trim leaves to 15 cm. Replant shallowly — the top of the rhizome should be at or just above soil level."
+        },
+        "growth_days": 365
+    },
+    "windflower": {
+        "fun_facts": "Wood anemones are ancient woodland indicators — their presence suggests a woodland has existed in that spot for at least 400 years. They spread at only 6 feet per century. Their flowers track the sun throughout the day, closing if it disappears.",
+        "species": "Anemone nemorosa, Anemone blanda, Anemone coronaria (poppy anemone)",
+        "grow_methods": {
+            "seed": "Sow fresh seeds immediately after collection in summer in pots kept cool and moist. Germination is erratic over autumn and spring. Seedlings are delicate and tiny. Grow on for 2 years before planting out. Plants flower in 3–5 years.",
+            "stem": "Divide rhizomes in late summer after leaves die back. The rhizomes look like small woody sticks. Plant 5 cm deep and 10 cm apart in moist, humus-rich soil in partial shade. Handle carefully as they are brittle and snap easily."
+        },
+        "growth_days": 365
+    },
+    "tree poppy": {
+        "fun_facts": "Romneya coulteri has flowers up to 23 cm across — the largest blooms of any California native plant. The plant is notoriously difficult to transplant — it must be grown in its final position — but once established it spreads freely by underground runners.",
+        "species": "Romneya coulteri, Romneya trichocalyx",
+        "grow_methods": {
+            "seed": "Seeds respond best to smoke treatment mimicking California wildfires. Burn dry grass over the seed tray or soak seeds in smoke-infused water for 24 hours before sowing. Sow on gritty compost at 18–20°C. Germination is erratic.",
+            "stem": "Take root cuttings in winter — the preferred propagation method. Cut sections of 5–8 cm from pencil-thick roots. Plant vertically in deep pots of sandy compost. New shoots appear in spring. Do not attempt stem cuttings."
+        },
+        "growth_days": 365
+    },
+    "gazania": {
+        "fun_facts": "Gazanias are called 'treasure flowers' because they close at night and reveal their brilliant multi-coloured patterns each morning. They evolved in harsh South African conditions and are remarkably drought-tolerant once established in the garden.",
+        "species": "Gazania rigens, Gazania linearis, Gazania krebsiana",
+        "grow_methods": {
+            "seed": "Sow indoors 6–8 weeks before last frost at 18–21°C. Sow 6 mm deep. Germination takes 7–14 days. Transplant after frost. Gazanias need maximum heat and sun to thrive. Direct sow in warm climates after last frost.",
+            "stem": "Take 8–10 cm cuttings in late summer from non-flowering shoots. Insert in gritty compost. Keep warm but dry — gazanias do not like humidity. Roots form in 4–6 weeks. Pot up and overwinter at 10–15°C in a sunny spot."
+        },
+        "growth_days": 60
+    },
+    "azalea": {
+        "fun_facts": "All azaleas are technically rhododendrons — but not all rhododendrons are azaleas. The name 'azalea' comes from the Greek 'azaleos' meaning dry — somewhat paradoxically, since they actually require consistent moisture to thrive.",
+        "species": "Rhododendron japonicum, Rhododendron obtusum, Rhododendron mucronatum",
+        "grow_methods": {
+            "seed": "Sow fine seeds on the surface of moist, acidic ericaceous compost in spring. Do not cover seeds. Keep at 16–18°C. Germination takes 14–30 days. Grow seedlings for at least 3 years before expecting flowers.",
+            "stem": "Take 8–10 cm semi-hardwood cuttings in late summer. Remove lower leaves and wound the base. Dip in rooting hormone. Insert in ericaceous compost with perlite. Mist regularly. Roots form in 6–10 weeks."
+        },
+        "growth_days": 1095
+    },
+    "water lily": {
+        "fun_facts": "Water lily flowers open in the morning and close in the afternoon for 3–4 days, then remain open and die. Victoria amazonica leaves can be up to 3 m across and support the weight of a child. Individual water lily pads can live for up to 3 weeks.",
+        "species": "Nymphaea alba, Nymphaea odorata, Victoria amazonica (giant water lily)",
+        "grow_methods": {
+            "seed": "Collect seeds from ripe pods under water. Sow immediately in aquatic compost submerged in containers of warm water (24–27°C). Keep in bright light. Germination takes 4–8 weeks. Thin to allow vigorous aquatic growth.",
+            "stem": "Divide rhizomes in spring. Lift the plant from its container. Cut rhizomes with a sharp knife ensuring each section has healthy roots and one or more growing points. Replant in aquatic baskets of heavy loam at the correct water depth."
+        },
+        "growth_days": 180
+    },
+    "rose": {
+        "fun_facts": "Roses have been cultivated for over 5,000 years. The oldest living rose bush grows on the wall of Hildesheim Cathedral in Germany — it is over 1,000 years old. Rose hips contain 20 times more vitamin C than oranges and were collected during WWII as a vital vitamin supplement.",
+        "species": "Rosa × hybrida (hybrid tea), Rosa rugosa, Rosa gallica (Gallica rose)",
+        "grow_methods": {
+            "seed": "Collect rose hips in autumn, extract and clean seeds. Mix with moist compost and refrigerate for 4–12 weeks (stratification). Sow in pots and leave outside over winter. Germination in spring. Seedlings do not come true from named varieties.",
+            "stem": "Take 20–25 cm hardwood cuttings in autumn from pencil-thick stems. Cut just below a bud at the bottom, just above a bud at the top. Remove all but the top 2 leaves. Insert 15 cm deep in sandy soil outdoors. Roots develop over winter."
+        },
+        "growth_days": 60
+    },
+    "thorn apple": {
+        "fun_facts": "Thorn apple (Jimsonweed) is among the most toxic plants in the world. British soldiers accidentally ate it in Jamestown, Virginia, causing mass hallucinations for 11 days — giving the plant its other name 'Jamestown weed' or 'Jimsonweed'. All parts are extremely dangerous.",
+        "species": "Datura stramonium, Datura innoxia, Datura metel",
+        "grow_methods": {
+            "seed": "Nick the hard seed coat with a file and soak for 24 hours before sowing. Sow 6 mm deep at 21–24°C. Germination takes 7–21 days. CAUTION: All parts are highly toxic — wear gloves throughout and keep away from children and pets.",
+            "stem": "Take stem tip cuttings 10–12 cm in summer. Remove lower leaves and insert in moist perlite. Keep at 22°C. Roots form in 2–3 weeks. CAUTION: All parts are extremely toxic. Handle only with gloves in full protective covering."
+        },
+        "growth_days": 80
+    },
+    "morning glory": {
+        "fun_facts": "Morning glories open each morning and close by afternoon — triggered by light and temperature changes. In Japan (called 'asagao') they have been cultivated for over 1,000 years. Elaborate morning glory exhibitions are held in Tokyo each summer.",
+        "species": "Ipomoea purpurea, Ipomoea tricolor 'Heavenly Blue', Ipomoea lobata",
+        "grow_methods": {
+            "seed": "Soak seeds overnight to soften the hard coat, or nick with a nail file. Sow 1 cm deep indoors 4–6 weeks before last frost, or direct sow after frost. Germination takes 5–10 days at 20–24°C. Direct sowing often gives better results.",
+            "stem": "Take tip cuttings from growing shoots in summer. Remove lower leaves. Insert in moist compost at 22°C. Keep warm and humid. Roots form in 2–3 weeks. Most morning glory varieties are grown as annuals so cuttings are rarely needed."
+        },
+        "growth_days": 70
+    },
+    "passion flower": {
+        "fun_facts": "Spanish missionaries named Passiflora after the Passion of Christ — the 10 petals represented the 10 faithful apostles, the crown of filaments represented the crown of thorns, the 5 stamens the 5 wounds. Passion fruit is the edible fruit of some Passiflora species.",
+        "species": "Passiflora caerulea, Passiflora edulis (passion fruit), Passiflora incarnata",
+        "grow_methods": {
+            "seed": "Sow fresh seeds in spring at 20–25°C in moist, well-drained compost. Germination is slow and erratic — 1–12 months. Soaking seeds for 24 hours in warm water before sowing can help significantly improve the rate.",
+            "stem": "Take 10–15 cm semi-hardwood cuttings in summer. Remove lower leaves, dip in rooting hormone. Insert in moist perlite at 20–22°C in high humidity. Roots form in 4–6 weeks. Pot in well-drained compost."
+        },
+        "growth_days": 180
+    },
+    "lotus": {
+        "fun_facts": "Lotus leaves have a superhydrophobic surface — water droplets bead and roll off instantly, carrying dirt with them. This 'lotus effect' inspired waterproof coatings. Sacred in Buddhism and Hinduism, lotus seeds can remain dormant for thousands of years. Ancient seeds have been germinated successfully.",
+        "species": "Nelumbo nucifera (sacred lotus), Nelumbo lutea (American lotus)",
+        "grow_methods": {
+            "seed": "Nick the pointed end of the seed coat with a file until white flesh shows. Place in warm water (30°C) and change daily. A root emerges in 3–5 days. Transfer to a container of water with aquatic compost in full sun. Expect flowers after 10–12 weeks.",
+            "stem": "Divide lotus rhizomes (tubers) carefully in spring. Separate individual growing tips from the rhizome, ensuring each has 1–2 growing nodes. Plant in an aquatic container barely covered by shallow warm water in full sun. Handle very gently as rhizomes break easily."
+        },
+        "growth_days": 90
+    },
+    "toad lily": {
+        "fun_facts": "Toad lilies earned their name because butterflies and insects were thought to rub the plant's spotted flowers on themselves to attract mates — similar to how toads were wrongly believed to cause warts. They bloom in autumn, one of very few perennials extending colour into late season.",
+        "species": "Tricyrtis hirta, Tricyrtis formosana, Tricyrtis latifolia",
+        "grow_methods": {
+            "seed": "Sow fresh seeds in autumn in pots left outside over winter for cold stratification. Germination occurs in spring. Surface sow on moist compost. Seedlings are slow growing and may take 2–3 years to reach flowering size.",
+            "stem": "Divide clumps in spring just as new growth begins to emerge. Dig up the plant and carefully separate sections, each with healthy roots and shoots. Replant in cool, moist, humus-rich soil in partial or full shade."
+        },
+        "growth_days": 365
+    },
+    "anthurium": {
+        "fun_facts": "Anthuriums ('flamingo flowers') are not true flowers but spathes — modified leaves. The heart-shaped 'flower' is a waxy coloured bract surrounding the true flower spike (spadix). NASA includes anthurium in its Clean Air Study as particularly effective at removing ammonia.",
+        "species": "Anthurium andraeanum, Anthurium scherzerianum, Anthurium clarinervium",
+        "grow_methods": {
+            "seed": "Collect ripe red berries from the spadix, extract seeds and sow immediately on the surface of moist peat-based compost at 22–25°C in high humidity. Germination takes 2–6 weeks. Grow on for 3–4 years before first flowers.",
+            "stem": "Remove offshoots (suckers) from the base when they have their own aerial roots. Pot in well-draining bark-based compost. Alternatively, air layer stems by wrapping a wound in moist sphagnum moss until roots form at the wound site."
+        },
+        "growth_days": 365
+    },
+    "frangipani": {
+        "fun_facts": "Frangipani flowers are used to make Hawaiian leis and are sacred in Buddhist temples throughout SE Asia. The name came from Italian perfumer Marquis Frangipani in the 16th century. Frangipani trees that fall over continue to flower from the toppled trunk.",
+        "species": "Plumeria rubra, Plumeria obtusa, Plumeria alba",
+        "grow_methods": {
+            "seed": "Sow fresh winged seeds in spring on the surface of well-drained compost at 24–27°C. Seeds germinate in 1–3 weeks. Seedlings grow slowly. Allow 3–5 years for first flowers from seed.",
+            "stem": "Take 30–45 cm branch tip cuttings in spring. Allow the cut end to dry and callous for 1–2 weeks in a shaded, airy spot — this prevents rot. Plant the dry end 10 cm deep in sandy compost. Water sparingly until rooted in 4–6 weeks."
+        },
+        "growth_days": 365
+    },
+    "clematis": {
+        "fun_facts": "Clematis are called the 'queen of climbers'. Their climbing mechanism is unique — they twine their leaf stalks around supports rather than using tendrils or adhesive pads. The key pruning rule is: if it blooms before June, don't prune; if it blooms after June, cut back hard in late winter.",
+        "species": "Clematis montana, Clematis viticella, Clematis armandii",
+        "grow_methods": {
+            "seed": "Collect seed heads before they disperse. Sow in autumn in pots left outside over winter. Germination is slow and erratic — can take 1–2 years. Named varieties do not come true from seed and must be propagated vegetatively.",
+            "stem": "Take internodal cuttings in late spring or early summer. Cut between stem nodes with a sharp blade. Remove lower leaves. Dip in rooting hormone. Insert in moist perlite in a humid propagator at 20°C. Roots form in 3–6 weeks."
+        },
+        "growth_days": 365
+    },
+    "hibiscus": {
+        "fun_facts": "Hibiscus is the national flower of Malaysia, South Korea and Haiti. Hibiscus tea made from dried petals is one of the most consumed herbal teas in the world. Individual tropical hibiscus flowers each last only one day but the plant continuously produces new blooms.",
+        "species": "Hibiscus rosa-sinensis (tropical), Hibiscus syriacus (hardy), Hibiscus sabdariffa (roselle)",
+        "grow_methods": {
+            "seed": "Sow seeds in spring at 21–24°C. Scarify seeds by nicking the hard coat or soaking overnight in warm water. Germination takes 7–30 days. Tropical varieties bloom in their first year from seed if started early enough.",
+            "stem": "Take 10–15 cm semi-hardwood cuttings in summer. Remove lower leaves. Dip in rooting hormone. Insert in moist perlite at 24°C with high humidity. Roots form in 3–5 weeks. Pot in well-drained, fertile compost."
+        },
+        "growth_days": 90
+    },
+    "columbine": {
+        "fun_facts": "Columbine flowers have hollow spurs at the back containing nectar, accessible only to insects or hummingbirds with tongues long enough to reach it — an example of co-evolution. Shakespeare mentioned columbines in both Love's Labour's Lost and Hamlet.",
+        "species": "Aquilegia vulgaris, Aquilegia canadensis, Aquilegia formosa",
+        "grow_methods": {
+            "seed": "Sow seeds in autumn for cold stratification, or refrigerate moist seeds 3–4 weeks before spring sowing. Surface sow on moist compost — seeds need light. Germination takes 21–30 days. Plants flower in their second year.",
+            "stem": "Columbines cannot be successfully propagated from cuttings — they have deep taproots. Division of older plants is also unreliable. The best approach is to allow self-seeding or to collect and sow fresh seeds each year."
+        },
+        "growth_days": 365
+    },
+    "desert-rose": {
+        "fun_facts": "Desert rose (Adenium obesum) develops a swollen water-storing trunk called a caudex — essential for surviving African and Arabian desert droughts. They are related to oleander and produce toxic white sap. In Thailand, each named variety can sell for hundreds of dollars.",
+        "species": "Adenium obesum, Adenium socotranum, Adenium swazicum",
+        "grow_methods": {
+            "seed": "Sow fresh seeds horizontally in well-drained sandy compost at 27–32°C. Press into the surface — do not bury deep. Germination takes 7–14 days. Grow in full sun with minimal watering. Seedlings can flower in 6–12 months.",
+            "stem": "Take 10–15 cm tip cuttings in spring or summer. Allow the cut end to dry for 1–2 days. Insert in dry sandy mix. Do not water for the first week. Keep at 28°C. Roots form in 3–6 weeks. Note: cuttings will not develop a fat caudex."
+        },
+        "growth_days": 180
+    },
+    "tree mallow": {
+        "fun_facts": "Tree mallow (Lavatera) can grow up to 2 m in a single season. The entire plant is edible — flowers, leaves and immature fruit are all used in Mediterranean cooking. The stem fibres have been used to make rope since ancient times.",
+        "species": "Lavatera trimestris (annual), Lavatera olbia, Lavatera × clementii",
+        "grow_methods": {
+            "seed": "Direct sow annual varieties after last frost, or start indoors 6–8 weeks early at 18°C. Sow 6 mm deep. Germination takes 14–21 days. Annual types bloom in the first year within 8–10 weeks of sowing.",
+            "stem": "Take 10–15 cm softwood cuttings from perennial varieties in spring. Remove lower leaves. Insert in moist gritty compost at 18–20°C. Roots form in 3–4 weeks. Pot up and overwinter frost-free and plant out the following spring."
+        },
+        "growth_days": 70
+    },
+    "magnolia": {
+        "fun_facts": "Magnolias are among the oldest flowering plants on Earth — evolving over 95 million years ago before bees existed. They are pollinated by beetles and consequently their flowers are very tough. The southern magnolia is the state flower of Mississippi.",
+        "species": "Magnolia grandiflora, Magnolia stellata (star magnolia), Magnolia × soulangeana",
+        "grow_methods": {
+            "seed": "Collect seeds from fleshy red arils in autumn and clean off the pulp. Sow in autumn in pots left outside for cold stratification. Germination takes 3–6 months. Seedlings take 10–15+ years to flower from seed.",
+            "stem": "Take semi-hardwood cuttings with a heel in mid-to-late summer. Wound the base and dip in rooting hormone. Insert in gritty perlite in a humid propagator. Mist regularly at 20°C. Roots form in 6–12 weeks. Essential for named varieties."
+        },
+        "growth_days": 3650
+    },
+    "cyclamen": {
+        "fun_facts": "Cyclamen have a unique seed dispersal mechanism — after pollination the flower stem coils like a spring and pulls the developing seed pod down to soil level. The seeds are coated in a sweet substance that ants collect, inadvertently spreading them to new locations.",
+        "species": "Cyclamen persicum (florist's), Cyclamen hederifolium, Cyclamen coum",
+        "grow_methods": {
+            "seed": "Sow fresh seeds in late summer or autumn. Soak for 12 hours, then sow 6 mm deep in dark conditions at 18°C. Germination takes 4–8 weeks. Grow seedlings in cool conditions. Plants take 15–18 months to bloom from seed.",
+            "stem": "Cyclamen are grown from their corm (tuber). Remove offset cormlets that form around the parent corm in summer when leaves die back. Plant cormlets individually just below the soil surface in gritty, well-drained compost."
+        },
+        "growth_days": 365
+    },
+    "watercress": {
+        "fun_facts": "Watercress is one of the oldest known vegetables — a staple of Roman legions. It contains more vitamin C than oranges and more calcium than milk. Hippocrates built the world's first hospital near a stream specifically to grow watercress for his patients.",
+        "species": "Nasturtium officinale, Rorippa nasturtium-aquaticum",
+        "grow_methods": {
+            "seed": "Sow seeds in trays of moist compost or directly into shallow water containers. Germination takes 7–14 days at 10–15°C. Thin seedlings to 15 cm apart. Keep constantly moist or submerged. Harvest regularly to prevent bolting.",
+            "stem": "Place fresh watercress stems (supermarket watercress works) in a glass of cool water. Roots form from stem nodes within 7–10 days. Transplant to pots kept standing in water trays, or plant in the margins of a slow-moving stream."
+        },
+        "growth_days": 60
+    },
+    "canna lily": {
+        "fun_facts": "Despite the name, cannas are not true lilies — they are the sole members of the Cannaceae family. The seeds are extremely hard and were historically used as shot in early firearms. Canna starch is extracted in Vietnam for making glass noodles.",
+        "species": "Canna indica, Canna × generalis, Canna flaccida",
+        "grow_methods": {
+            "seed": "Nick the very hard seed coat with a file or sandpaper and soak for 24 hours in warm water. Sow 2 cm deep at 24–27°C. Germination in 7–14 days. Plants started from seed may bloom in their first year if started early indoors.",
+            "stem": "Divide rhizomes in spring. Lift the clump after frost and when new growth appears in spring, cut rhizomes into sections each with 1–3 growing eyes. Replant 5–8 cm deep after the last frost in a warm, sunny position."
+        },
+        "growth_days": 90
+    },
+    "hippeastrum": {
+        "fun_facts": "Hippeastrums are commonly (and incorrectly) sold as 'amaryllis'. The name means 'horse star' in Greek. The same bulb can be forced to bloom year after year by following a defined dry dormancy period — making them excellent long-term houseplants.",
+        "species": "Hippeastrum reginae, Hippeastrum vittatum, Hippeastrum papilio (butterfly hippeastrum)",
+        "grow_methods": {
+            "seed": "Sow fresh seeds flat on moist compost at 21°C. Germination takes 2–4 weeks. Seedlings grow slowly and take 4–7 years to reach flowering size from seed. Named varieties may not come true from seed.",
+            "stem": "Remove offsets from the side of the parent bulb when repotting. Allow the cut surface to dry for 24 hours before planting. Grow on for 2–3 years before expecting flowers. Commercial propagators use 'twin scaling' to multiply bulbs rapidly."
+        },
+        "growth_days": 90
+    },
+    "bee balm": {
+        "fun_facts": "Bee balm was used as a tea substitute by American colonists after the Boston Tea Party (1773). Its bergamot-like flavour is similar to Earl Grey tea. The Oswego people of New York used bee balm medicinally for centuries — giving it the common name 'Oswego tea'.",
+        "species": "Monarda didyma, Monarda fistulosa, Monarda citriodora",
+        "grow_methods": {
+            "seed": "Surface sow seeds on moist compost in spring — seeds need light to germinate. Keep at 18–21°C. Germination in 14–21 days. Named varieties do not come true from seed. Self-sown seedlings may appear around established plants.",
+            "stem": "Divide clumps in spring every 2–3 years as plants become woody at centre. Dig up the clump and separate vigorous outer sections. Replant 45–60 cm apart in moisture-retentive soil. Alternatively take basal cuttings in spring."
+        },
+        "growth_days": 90
+    },
+    "ball moss": {
+        "fun_facts": "Ball moss is an epiphyte — it grows on surfaces including telephone wires but is not a parasite. It draws all nutrition from rain, air and dust. It is a bromeliad — a relative of the pineapple. It can survive complete desiccation and fully revive when water returns.",
+        "species": "Tillandsia recurvata, Tillandsia usneoides (Spanish moss)",
+        "grow_methods": {
+            "seed": "Seeds are attached to feathery plumes carried on the wind. To propagate, collect seeds and press gently onto tree bark, wire mesh or any rough surface. Keep in high humidity and mist regularly. Germination takes several months.",
+            "stem": "Simply separate existing clumps by hand and attach to new surfaces with waterproof glue, thread or wire mesh. Mist the attached sections with water weekly. Add diluted liquid fertiliser monthly. No soil is needed — they are air plants."
+        },
+        "growth_days": 365
+    },
+    "foxglove": {
+        "fun_facts": "Foxglove gave medicine one of its most important drugs — digitalis, used to treat heart conditions since 1785. William Withering discovered this after learning of a Welsh herbal remedy. All parts of the plant are toxic if eaten, yet life-saving when used medically in correct doses.",
+        "species": "Digitalis purpurea, Digitalis grandiflora, Digitalis lanata",
+        "grow_methods": {
+            "seed": "Surface sow seeds on moist compost outdoors in late spring/early summer. Seeds need light to germinate — do not cover. Germination in 14–21 days at 15–18°C. Thin plants to 45 cm. Plants flower the following year.",
+            "stem": "Foxgloves do not propagate easily from cuttings. Perennial forms can be divided in spring. Allow self-seeding for natural succession planting — they will colonise shaded spots readily."
+        },
+        "growth_days": 365
+    },
+    "bougainvillea": {
+        "fun_facts": "Bougainvillea is named after Louis Antoine de Bougainville, the first Frenchman to sail around the world (1766–1769). The showy 'petals' are paper-thin bracts surrounding tiny white true flowers. They can live for 50+ years and grow into large trees in tropical climates.",
+        "species": "Bougainvillea glabra, Bougainvillea spectabilis, Bougainvillea × buttiana",
+        "grow_methods": {
+            "seed": "Rarely propagated from seed commercially. Sow seeds in spring at 27°C in well-draining compost. Germination is variable and unreliable. Vegetative propagation via cuttings is much more reliable.",
+            "stem": "Take 15–20 cm semi-hardwood cuttings in summer. Remove lower leaves. Dip in rooting hormone. Insert in well-drained sandy compost at 24–27°C. Keep moderately humid — too much humidity causes rot. Roots form in 4–8 weeks."
+        },
+        "growth_days": 365
+    },
+    "camellia": {
+        "fun_facts": "The world's most consumed beverage after water — tea — is made from Camellia sinensis, a direct relative of ornamental camellias. Coco Chanel made the camellia the symbol of her fashion house after receiving one from the Duke of Westminster.",
+        "species": "Camellia japonica, Camellia sinensis (tea camellia), Camellia sasanqua",
+        "grow_methods": {
+            "seed": "Collect fresh seeds in autumn and sow immediately in ericaceous compost at 18–20°C. Seeds germinate in 1–3 months. Seedlings take many years to bloom and will not resemble the parent. Cuttings or grafting are preferred for named varieties.",
+            "stem": "Take 8–10 cm semi-hardwood cuttings with a heel in late summer. Wound the base and treat with rooting hormone. Insert in ericaceous compost with added perlite at 18°C and high humidity. Rooting takes 8–12 weeks."
+        },
+        "growth_days": 1095
+    },
+    "mallow": {
+        "fun_facts": "Mallows give their name to the colour mauve — derived from the French 'mauve' (mallow). The mucilaginous properties of mallow were used to make the original marshmallow sweet — long before modern confectionery used gelatine and sugar. All parts are edible.",
+        "species": "Malva sylvestris, Malva moschata (musk mallow), Malva neglecta",
+        "grow_methods": {
+            "seed": "Sow directly outdoors in spring after last frost, or start indoors 6–8 weeks early. Sow 6 mm deep at 18–21°C. Germination takes 14–21 days. Thin to 45–60 cm apart. Can also be sown in autumn for overwintering young plants.",
+            "stem": "Take basal stem cuttings in spring or summer. Cut 10 cm shoots from near the base. Remove lower leaves. Insert in moist gritty compost at 18–20°C. Roots form in 3–4 weeks. Perennial mallows can also be divided carefully in spring."
+        },
+        "growth_days": 70
+    },
+    "mexican petunia": {
+        "fun_facts": "Mexican petunias (Ruellia) are considered invasive in Florida and several US states because they spread very aggressively. They have explosive seed pods that fling seeds up to 3 metres away with a loud crack. Each flower lasts only one day but the plant produces new blooms daily.",
+        "species": "Ruellia brittoniana, Ruellia simplex, Ruellia makoyana",
+        "grow_methods": {
+            "seed": "Sow seeds in spring at 21–24°C in moist compost. Germination takes 14–21 days. The plant also self-seeds very prolifically. In mild climates, seeds from explosive pods will colonise an area rapidly — plant only in contained spaces.",
+            "stem": "Take stem cuttings 10–15 cm long in spring or summer. Remove lower leaves. Insert in moist perlite at 22°C. Roots form in 2–3 weeks. Division of established clumps in spring is also very effective and the quickest propagation method."
+        },
+        "growth_days": 90
+    },
+    "bromelia": {
+        "fun_facts": "Bromeliads form cups in their leaf rosettes that collect rainwater and plant debris. These mini-ecosystems support entire communities of aquatic insects, tree frogs and even crabs in tropical forests. When a bromeliad flowers, the parent plant slowly dies — but first produces multiple offsets (pups) to carry on.",
+        "species": "Bromelia balansae, Bromelia hieronymi, Bromelia pinguin",
+        "grow_methods": {
+            "seed": "Sow fresh seeds on the surface of moist bromeliad compost at 24–27°C. Do not cover. Germination takes 2–6 weeks in high humidity. Seedlings grow very slowly and take many years to reach blooming size.",
+            "stem": "Remove offsets (pups) from the base when they are one-third the size of the parent plant. Use a sharp sterile knife. Allow cut surfaces to callous for 24 hours. Pot in bromeliad compost. Keep lightly moist."
+        },
+        "growth_days": 365
+    },
+    "blanket flower": {
+        "fun_facts": "Blanket flowers (Gaillardia) earned their name from their resemblance to the brightly coloured blankets made by Native American peoples. They are among the longest-blooming perennials and in mild climates can bloom almost year-round. Native to American prairies.",
+        "species": "Gaillardia aristata, Gaillardia pulchella, Gaillardia × grandiflora",
+        "grow_methods": {
+            "seed": "Sow indoors 4–6 weeks before last frost or direct sow after frost. Sow on the surface — seeds need light. Germination in 14–21 days at 20–22°C. Annual types bloom in the first year. Deadhead regularly to extend flowering.",
+            "stem": "Take basal cuttings in spring or summer from shoots near the crown. Remove lower leaves. Root in moist perlite at 20°C. Roots form in 3–4 weeks. Division of clumps in spring every 2–3 years also works well."
+        },
+        "growth_days": 90
+    },
+    "trumpet creeper": {
+        "fun_facts": "Trumpet creeper vines can grow 10 m in a single season and spread aggressively by runners and self-seeding — considered invasive in some US states. Hummingbirds co-evolved alongside trumpet creepers — their bill shape perfectly matches the tubular flower.",
+        "species": "Campsis radicans, Campsis grandiflora, Campsis × tagliabuana",
+        "grow_methods": {
+            "seed": "Collect winged seeds from ripe pods. Sow in spring in pots at 20°C. Germination takes 21–30 days. Plants can take 5–7 years to flower from seed. Growing from cuttings is much faster and more reliable.",
+            "stem": "Take 10–15 cm semi-hardwood cuttings in summer. Remove lower leaves. Dip in rooting hormone. Insert in moist gritty compost at 20–22°C. Roots form in 4–6 weeks. Root cuttings from 5 cm sections can also be taken in winter."
+        },
+        "growth_days": 365
+    },
+    "blackberry lily": {
+        "fun_facts": "Despite the name, the blackberry lily (Iris domestica) is actually an iris — formerly classified as Belamcanda chinensis. It earned its name from the glistening black seeds in autumn that cluster like blackberries. The dried flower stalks with open pods make exceptional dried arrangements.",
+        "species": "Iris domestica, formerly Belamcanda chinensis",
+        "grow_methods": {
+            "seed": "Collect and sow seeds in autumn in pots left outside for cold stratification. Alternatively stratify moist seeds in the refrigerator for 6 weeks before spring sowing. Germination takes 30–60 days. Plants flower in their second year.",
+            "stem": "Divide rhizomes in spring or immediately after flowering. Dig up the clump and separate into sections each with roots and healthy growing points. Replant at the same depth 30 cm apart in well-drained soil in full sun."
+        },
+        "growth_days": 365
+    }
+}
+
+# Load existing database
+with open("flower_database.json", "r", encoding="utf-8") as f:
+    db = json.load(f)
+
+updated = 0
+skipped = 0
+for flower_name, enhancements in ENHANCEMENTS.items():
+    if flower_name in db:
+        db[flower_name].update(enhancements)
+        updated += 1
+    else:
+        print(f"  [WARN] '{flower_name}' not found in database — skipping.")
+        skipped += 1
+
+# Save enhanced database
+with open("flower_database.json", "w", encoding="utf-8") as f:
+    json.dump(db, f, indent=2, ensure_ascii=False)
+
+print(f"\nDone! Updated {updated} entries, skipped {skipped}.")

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowerVision – Identify Plants &amp; Flowers</title>
+  <meta name="description" content="FlowerVision – AI-powered plant and flower identification instantly." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=12" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <!-- Three.js for 3D flower bloom -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <!-- 3D bloom intro -->
+  <div id="flower3d-screen" role="status" aria-label="Loading FlowerVision" style="position:fixed;inset:0;z-index:12000;">
+    <canvas id="flower3d-canvas" style="display:block;width:100%;height:100%;"></canvas>
+    <button id="skip-intro-btn" aria-label="Skip intro animation" onclick="document.getElementById('flower3d-screen').dispatchEvent(new CustomEvent('flower3d:done'))">
+      Skip &nbsp;<span class="skip-arrow">&#10095;&#10095;</span>
+    </button>
+  </div>
+
+
+  <!-- Intro text screen -->
+  <div id="intro" aria-hidden="true" style="display: none;">
+    <div class="intro-content">
+      <p class="intro-hello">Hello! 👋</p>
+      <p class="intro-brand">Welcome to <span class="intro-brand-highlight">FlowerVision</span></p>
+    </div>
+  </div>
+
+
+  <!-- Landing screen -->
+  <div id="landing" aria-hidden="true" style="display: none;">
+
+    <!-- Background decorations -->
+    <div class="bg-blur-blob blob-1"></div>
+    <div class="bg-blur-blob blob-2"></div>
+
+    <div class="splash-container">
+
+      <!-- Left: App card mockup -->
+      <div class="splash-left">
+        <div class="mobile-card">
+          <div class="floating-element leaf-1">🌿</div>
+          <div class="floating-element leaf-2">🍃</div>
+
+          <div class="mobile-header">
+            <span class="scan-badge">AI PLANT SCAN</span>
+            <span class="app-name">Flower Vision</span>
+          </div>
+
+          <div class="mobile-body">
+            <div class="plant-circle-wrapper">
+              <div class="scanner-ring"></div>
+              <div class="plant-circle">
+                <i class="fa-solid fa-seedling text-white" style="font-size: 3rem;"></i>
+              </div>
+            </div>
+
+            <h3 class="scanning-text">Scanning petals &amp; leaves...</h3>
+
+            <div class="stats-box">
+              <div class="stat-item">
+                <span class="stat-label">Recognition</span>
+                <span class="stat-value">98.4%</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-label">Result speed</span>
+                <span class="stat-value">Instant</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mobile-footer">
+            <div class="loading-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <p class="analyzing-status">AI engine is analyzing image data</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Text and features -->
+      <div class="splash-right">
+        <div class="tagline-badge">
+          <i class="fa-solid fa-leaf"></i> Nature-powered AI experience
+        </div>
+
+        <h1 class="hero-heading">
+          Identify flowers instantly 🌸
+        </h1>
+
+        <div class="feature-cards">
+          <div class="feature-card delay-1">
+            <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+            <div class="feature-text">
+              <h4>AI-powered recognition</h4>
+              <p>Identify over 10,000 species instantly</p>
+            </div>
+          </div>
+
+          <div class="feature-card delay-2">
+            <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div class="feature-text">
+              <h4>Fast and accurate</h4>
+              <p>Get results with 98%+ precision</p>
+            </div>
+          </div>
+
+          <div class="feature-card delay-3">
+            <div class="feature-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div class="feature-text">
+              <h4>Easy image upload</h4>
+              <p>Just snap a photo or upload from gallery</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-actions delay-4">
+          <button class="get-started-btn" id="get-started-btn" type="button">
+            <i class="fa-solid fa-arrow-right"></i> Get Started
+          </button>
+          <a href="/learn-grow" class="learn-grow-nav-btn">
+            <i class="fa-solid fa-seedling"></i> Learn &amp; Grow
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+
+
+  </div>
+
+
+  <!-- Main app -->
+  <main id="main-app" aria-hidden="true" style="display: none;">
+
+    <div class="bg-blur-blob blob-3"></div>
+    <div class="bg-blur-blob blob-4"></div>
+
+    <!-- Home button -->
+    <button id="home-btn" class="home-btn" type="button" aria-label="Go back to home page">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </button>
+
+    <div class="app-container">
+      <header class="app-header">
+        <div class="app-logo-icon" aria-hidden="true"><i class="fa-solid fa-seedling"></i></div>
+        <h1 class="app-title"><span class="brand">Flower</span>Vision</h1>
+        <p class="app-subtitle">AI-powered plant &amp; flower identification</p>
+        <div class="badge-row">
+          <span class="badge"><i class="fa-solid fa-brain"></i> AI Powered</span>
+          <span class="badge"><i class="fa-solid fa-leaf"></i> 10 000+ Species</span>
+          <span class="badge"><i class="fa-solid fa-bolt"></i> Instant Results</span>
+        </div>
+      </header>
+
+      <div class="app-tabs" id="app-tabs">
+        <button class="tab-btn active" data-target="tab-identify"><i class="fa-solid fa-magnifying-glass"></i> Identify Flower</button>
+        <button class="tab-btn" data-target="tab-compare"><i class="fa-solid fa-chart-line"></i> Model Performance</button>
+      </div>
+
+      <div id="tab-identify" class="tab-pane active">
+
+      <div id="error-msg" class="error-msg" role="alert"></div>
+
+      <section class="upload-section" aria-label="Image upload">
+        <div class="upload-card" id="upload-card" tabindex="0" role="button" aria-label="Upload a flower or plant image">
+          <div id="upload-icon" class="upload-icon" aria-hidden="true">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <p class="upload-title">Drop your image here</p>
+          <p class="upload-hint" id="upload-hint">Supports JPG, PNG, WEBP · Max 16 MB</p>
+
+          <button class="upload-btn" id="choose-btn" type="button">
+            <i class="fa-solid fa-image"></i> Choose Image
+          </button>
+
+          <input type="file" id="file-input" accept="image/*" style="display:none;" aria-label="Select image file" />
+          <img id="preview-img" src="" alt="Selected flower image preview" style="display: none;" />
+        </div>
+      </section>
+
+      <button class="predict-btn" id="predict-btn" type="button" style="display: none;">
+        <i class="fa-solid fa-magnifying-glass"></i> Identify Flower
+      </button>
+
+      <div class="analyzing-overlay" id="analyzing-overlay" aria-live="polite">
+        <div class="analyzing-spinner" aria-hidden="true"></div>
+        <span class="analyzing-text">AI is analyzing petals, leaves, and colors...</span>
+      </div>
+
+      <section class="results-section" id="results-section" aria-live="polite">
+
+        <div class="result-card" id="top-result-card">
+          <div class="result-header-flex">
+            <div>
+              <p class="result-tag">BEST MATCH</p>
+              <p class="result-top-name" id="top-name"></p>
+            </div>
+            <div class="confidence-badge">
+              <i class="fa-solid fa-check-circle"></i> <span id="top-confidence-text"></span>
+            </div>
+          </div>
+
+          <div class="conf-bar-track">
+            <div class="conf-bar-fill" id="top-conf-fill" style="width:0%"></div>
+          </div>
+
+          <div class="info-grid" id="info-grid">
+            <div class="info-chip">
+              <div class="info-chip-icon"><i class="fa-solid fa-microscope"></i></div>
+              <div>
+                <div class="info-chip-label">Scientific Name</div>
+                <div class="info-chip-value" id="chip-scientific"></div>
+              </div>
+            </div>
+            <div class="info-chip">
+              <div class="info-chip-icon"><i class="fa-solid fa-mortar-pestle"></i></div>
+              <div>
+                <div class="info-chip-label">Uses &amp; Applications</div>
+                <div class="info-chip-value" id="chip-uses"></div>
+              </div>
+            </div>
+            <div class="info-chip">
+              <div class="info-chip-icon"><i class="fa-solid fa-hand-holding-droplet"></i></div>
+              <div>
+                <div class="info-chip-label">Care Instructions</div>
+                <div class="info-chip-value" id="chip-care"></div>
+              </div>
+            </div>
+            <div class="info-chip">
+              <div class="info-chip-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+              <div>
+                <div class="info-chip-label">Symbolism</div>
+                <div class="info-chip-value" id="chip-symbolism"></div>
+              </div>
+            </div>
+            <div class="info-chip full-width">
+              <div class="info-chip-icon"><i class="fa-solid fa-leaf"></i></div>
+              <div>
+                <div class="info-chip-label">Characteristics</div>
+                <div class="info-chip-value" id="chip-characteristics"></div>
+              </div>
+            </div>
+            <div class="info-chip full-width">
+              <div class="info-chip-icon"><i class="fa-solid fa-align-left"></i></div>
+              <div>
+                <div class="info-chip-label">Description</div>
+                <div class="info-chip-value" id="chip-description"></div>
+              </div>
+            </div>
+          </div>
+
+          <a class="wiki-btn" id="wiki-btn" href="#" target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-wikipedia-w"></i> Read on Wikipedia
+          </a>
+        </div>
+
+        <div class="result-card" id="freshness-card">
+          <div class="section-heading"><i class="fa-regular fa-clock"></i> Flower Freshness &amp; Age</div>
+          <div class="freshness-flex">
+            <div>
+              <p id="freshness-condition" class="freshness-condition"></p>
+              <p id="freshness-days" class="freshness-days"></p>
+            </div>
+            <div class="freshness-score-wrapper">
+              <span id="freshness-pct" class="freshness-score"></span>
+            </div>
+          </div>
+          <div class="freshness-row">
+            <div class="freshness-track">
+              <div class="freshness-fill" id="freshness-fill" style="width:0%"></div>
+            </div>
+          </div>
+          <p id="freshness-metrics" class="freshness-metrics"></p>
+        </div>
+
+        <div class="result-card" id="other-matches-card">
+          <div class="section-heading"><i class="fa-solid fa-list-ul"></i> Other Possible Matches</div>
+          <div id="other-matches"></div>
+        </div>
+      </section>
+
+      </div>
+
+      <div id="tab-compare" class="tab-pane" style="display: none;">
+
+        <!-- Model comparison -->
+        <section class="comparison-section" id="comparison-section" aria-label="Model performance comparison" style="margin-top: 0;">
+          <div class="comparison-header">
+            <div class="comparison-title-row">
+              <span class="comparison-icon">🏆</span>
+              <h2 class="comparison-title">Model Performance Comparison</h2>
+            </div>
+            <p class="comparison-subtitle">EfficientNetB0 vs VGG16 vs MobileNetV2 — Transfer Learning on Oxford 102 Flowers</p>
+            <button class="comparison-load-btn" id="comparison-load-btn" type="button">
+              <i class="fa-solid fa-chart-bar"></i> Load Comparison Data
+            </button>
+          </div>
+
+          <!-- Status banner -->
+          <div class="comparison-status" id="comparison-status" style="display:none;"></div>
+
+          <!-- Charts grid -->
+          <div class="comparison-charts" id="comparison-charts" style="display:none;">
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <i class="fa-solid fa-bullseye"></i>
+                <span>Accuracy</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="comparison-chart-accuracy" aria-label="Model accuracy comparison bar chart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <i class="fa-solid fa-arrow-trend-down"></i>
+                <span>Loss</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="comparison-chart-loss" aria-label="Model loss comparison bar chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics table -->
+          <div class="comparison-table-wrap" id="comparison-table-wrap" style="display:none;">
+            <table class="comparison-table" id="comparison-table" aria-label="Model metrics summary table">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Test Accuracy</th>
+                  <th>Val Accuracy</th>
+                  <th>Test Loss</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/flower3d.js') }}?v=2"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}?v=12"></script>
+</body>
+</html>
+
