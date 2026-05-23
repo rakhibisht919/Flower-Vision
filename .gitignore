@@ -18,10 +18,12 @@ __pycache__/
 
 # ── Trained model files (too large for GitHub) ────────────────
 models/*.h5
-models/*.keras
 models/*.pb
 models/flower_recognition_model_tf/
 models/variables/
+
+# Keep the primary model (23 MB — fine for GitHub)
+!models/efficientnet_model.keras
 
 # Keep result logs and charts
 !models/training_history.json
