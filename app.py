@@ -218,12 +218,15 @@ def predict():
         return jsonify({"error": "Empty filename."}), 400
 
     try:
+        import gc
         img_bytes = file.read()
         pil_img   = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+        pil_img.thumbnail((400, 400))
         img_np    = np.array(pil_img)
 
         processed = preprocess_image(img_np, mode="efficientnet")
         predictions = run_inference(processed)
+        gc.collect()
 
         s = float(np.sum(predictions))
         if abs(s - 1.0) > 1e-3:

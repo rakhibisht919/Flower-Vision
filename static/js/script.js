@@ -150,6 +150,34 @@
     document.getElementById('error-msg').classList.remove('show');
   }
 
+  // Helper to resize image client-side before upload to prevent memory spikes on Render
+  function compressImage(file, maxDimension = 600) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', 0.85);
+      };
+      img.onerror = () => resolve(file);
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
   // Prediction API
   predictBtn.addEventListener('click', async () => {
     if (!selectedFile) return;
@@ -166,8 +194,9 @@
     analyzing.classList.add('show');
 
     try {
+      const uploadBlob = await compressImage(selectedFile, 600);
       const formData = new FormData();
-      formData.append('image', selectedFile);
+      formData.append('image', uploadBlob, 'upload.jpg');
 
       const response = await fetch('/predict', { method: 'POST', body: formData });
       const text = await response.text();
