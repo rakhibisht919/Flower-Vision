@@ -30,13 +30,17 @@ def add_header(r):
     return r
 
 model = None
+tflite_interpreter = None
+input_details = None
+output_details = None
 class_names = []
 flower_db = {}
 is_saved_model = False
+is_tflite_model = False
 
 
 def load_resources():
-    global model, class_names, flower_db, is_saved_model
+    global model, tflite_interpreter, input_details, output_details, class_names, flower_db, is_saved_model, is_tflite_model
 
     with open("data/class_names.txt", "r", encoding="utf-8") as f:
         class_names = [line.strip() for line in f.readlines()]
@@ -44,20 +48,36 @@ def load_resources():
 
     loaded = False
     is_saved_model = False
+    is_tflite_model = False
 
-    for model_path in [
-        "models/efficientnet_model.keras",
-        "models/flower_recognition_model.h5",
-        "models/best_model.h5",
-    ]:
-        if os.path.exists(model_path):
-            try:
-                model = keras.models.load_model(model_path, compile=False)
-                loaded = True
-                print(f"[OK] Keras model loaded: {model_path}")
-                break
-            except Exception as e:
-                print(f"[WARN] Could not load {model_path}: {e}")
+    # 1. Try TFLite model first (ultra-lightweight, 30MB RAM footprint)
+    if os.path.exists("models/efficientnet_model.tflite"):
+        try:
+            tflite_interpreter = tf.lite.Interpreter(model_path="models/efficientnet_model.tflite")
+            tflite_interpreter.allocate_tensors()
+            input_details = tflite_interpreter.get_input_details()
+            output_details = tflite_interpreter.get_output_details()
+            is_tflite_model = True
+            loaded = True
+            print("[OK] TFLite model loaded successfully!")
+        except Exception as e:
+            print(f"[WARN] TFLite model load failed: {e}")
+
+    # 2. Fallback to Keras model
+    if not loaded:
+        for model_path in [
+            "models/efficientnet_model.keras",
+            "models/flower_recognition_model.h5",
+            "models/best_model.h5",
+        ]:
+            if os.path.exists(model_path):
+                try:
+                    model = keras.models.load_model(model_path, compile=False)
+                    loaded = True
+                    print(f"[OK] Keras model loaded: {model_path}")
+                    break
+                except Exception as e:
+                    print(f"[WARN] Could not load {model_path}: {e}")
 
     if not loaded and os.path.exists("models/flower_recognition_model_tf"):
         try:
@@ -178,6 +198,11 @@ def estimate_freshness(img_np):
 
 
 def run_inference(img_batch):
+    if is_tflite_model:
+        tflite_interpreter.set_tensor(input_details[0]['index'], img_batch)
+        tflite_interpreter.invoke()
+        output_data = tflite_interpreter.get_tensor(output_details[0]['index'])
+        return output_data[0]
     if is_saved_model:
         serving = model.signatures["serving_default"]
         _, input_spec = serving.structured_input_signature
@@ -197,7 +222,7 @@ except Exception as e:
 
 @app.route("/health")
 def health():
-    return jsonify({"status": "ok", "model_loaded": model is not None})
+    return jsonify({"status": "ok", "model_loaded": (is_tflite_model or model is not None), "engine": "tflite" if is_tflite_model else "keras"})
 
 
 @app.route("/")
@@ -207,7 +232,7 @@ def index():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    if model is None:
+    if not is_tflite_model and model is None:
         return jsonify({"error": "Model not loaded. Please train the model first."}), 503
 
     if "image" not in request.files:
