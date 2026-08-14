@@ -4,6 +4,11 @@ import sys
 import json
 import numpy as np
 
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["TF_NUM_INTRAOP_THREADS"] = "1"
+os.environ["TF_NUM_INTEROP_THREADS"] = "1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 
@@ -217,12 +222,8 @@ def predict():
         pil_img   = Image.open(io.BytesIO(img_bytes)).convert("RGB")
         img_np    = np.array(pil_img)
 
-        variants = [img_np, np.flip(img_np, axis=1), np.flip(img_np, axis=0)]
-        preds = []
-        for v in variants:
-            preds.append(run_inference(preprocess_image(v, mode="efficientnet")))
-
-        predictions = np.mean(preds, axis=0)
+        processed = preprocess_image(img_np, mode="efficientnet")
+        predictions = run_inference(processed)
 
         s = float(np.sum(predictions))
         if abs(s - 1.0) > 1e-3:

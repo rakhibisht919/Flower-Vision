@@ -170,21 +170,33 @@
       formData.append('image', selectedFile);
 
       const response = await fetch('/predict', { method: 'POST', body: formData });
-
-      // Guard against empty responses (e.g. server timeout / worker crash)
       const text = await response.text();
+
       if (!text || text.trim() === '') {
-        throw new Error('Server returned an empty response. The model may have run out of memory or timed out. Please try again with a smaller image.');
+        throw new Error('Server returned an empty response. The model may have timed out or run out of memory. Try a smaller image.');
+      }
+
+      if (!response.ok) {
+        let errMessage = `Server error (${response.status} ${response.statusText})`;
+        try {
+          const errData = JSON.parse(text);
+          if (errData.error) errMessage = errData.error;
+        } catch (_) {
+          if (response.status === 502 || response.status === 504) {
+            errMessage = 'Server timed out or out of memory. Please try again or resize your image.';
+          }
+        }
+        throw new Error(errMessage);
       }
 
       let data;
       try {
         data = JSON.parse(text);
       } catch (parseErr) {
-        throw new Error('Server returned an invalid response. Please try again.');
+        throw new Error(`Server response parse error (HTTP ${response.status}). Please try again.`);
       }
 
-      if (!response.ok || data.error) throw new Error(data.error || 'Server connection failed');
+      if (data.error) throw new Error(data.error);
 
       renderResults(data);
       resultsSection.classList.add('show');
