@@ -182,6 +182,12 @@ def run_inference(img_batch):
     return model.predict(img_batch, verbose=0)[0]
 
 
+try:
+    load_resources()
+except Exception as e:
+    print(f"[WARN] Model load warning: {e}")
+
+
 # Routes
 
 @app.route("/")
@@ -319,16 +325,5 @@ def learn_grow_page():
 # Entry point
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("  FlowerVision Web App")
-    print("  Loading ML model...")
-    print("=" * 60)
-    try:
-        load_resources()
-    except Exception as e:
-        print(f"[WARN] Model load warning: {e}")
-    print("=" * 60)
-    print("  Open http://127.0.0.1:5001 in your browser")
-    print("=" * 60)
     port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port, debug=False)
