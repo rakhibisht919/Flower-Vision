@@ -190,6 +190,11 @@ except Exception as e:
 
 # Routes
 
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok", "model_loaded": model is not None})
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -255,7 +260,9 @@ def predict():
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
 
 
 # Comparison API

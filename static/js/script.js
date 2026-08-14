@@ -170,7 +170,19 @@
       formData.append('image', selectedFile);
 
       const response = await fetch('/predict', { method: 'POST', body: formData });
-      const data = await response.json();
+
+      // Guard against empty responses (e.g. server timeout / worker crash)
+      const text = await response.text();
+      if (!text || text.trim() === '') {
+        throw new Error('Server returned an empty response. The model may have run out of memory or timed out. Please try again with a smaller image.');
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        throw new Error('Server returned an invalid response. Please try again.');
+      }
 
       if (!response.ok || data.error) throw new Error(data.error || 'Server connection failed');
 

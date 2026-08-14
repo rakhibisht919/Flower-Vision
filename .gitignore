@@ -19,6 +19,7 @@ __pycache__/
 # ── Trained model files (too large for GitHub) ────────────────
 models/*.h5
 models/*.pb
+models/*.keras
 models/flower_recognition_model_tf/
 models/variables/
 
